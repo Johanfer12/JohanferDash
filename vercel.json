@@ -2,12 +2,14 @@
     "version": 2,
     "builds": [
         {
-            "src": "Johanfer.py",
+            "src": "./Johanfer.py",
             "use": "@vercel/python"
         }
     ],
     "routes": [
-        { "handle": "filesystem" },
-        { "src": "/(.*)", "dest": "/Johanfer.py" }
+        {
+            "src": "/(.*)",
+            "dest": "/"
+        }
     ]
 }
