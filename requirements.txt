@@ -1,3 +1,2 @@
-dash
-plotly
+dash==2.10.2
 
