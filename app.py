@@ -55,7 +55,7 @@ days = total_playtime // 86400
 
 # Crear una instancia de la aplicación Dash
 app = Dash(__name__)
-app.title = 'Dash de Johanfer'
+app.title = 'Dash de Johan'
 
 # Definir el diseño de la aplicación
 app.layout = html.Div(
