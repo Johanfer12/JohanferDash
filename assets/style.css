@@ -1,0 +1,74 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.left-column {
+  flex: 1;
+  padding: 20px;
+}
+
+.right-column {
+  flex: 2;
+  padding: 20px;
+}
+
+
+body {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  background-color: #444654;
+  color: #ffffff;
+}
+
+.song-item {
+  margin-right: 1px;
+}
+
+a {
+  color: #ac53f5; /* Cambia el color de los hipervínculos a rojo (#ff0000) */
+  text-decoration: none; /* Elimina la subrayado por defecto de los hipervínculos */
+}
+
+a:hover {
+  color: #00ffbf; /* Cambia el color de los hipervínculos cuando se les pasa el mouse a verde (#00ff00) */
+}
+
+
+@media (max-width: 1024px) {/* Estilos para pantallas pequeñas*/
+  .der {
+    float: none;
+    width: 100%;
+  }
+  
+  .izq {
+    float: none;
+    width: 100%;
+    order: -1; /* Cambiamos el orden para que vaya encima de .der */
+    padding-bottom: 10px;
+  }
+
+  .tabla-desplegable {
+    float: center;
+    width: 100%; /* Cambia el valor del ancho según tus necesidades */
+    margin: 0 auto;
+    padding: 4px;
+    color: #000000;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+
+  .tabla-reporte {
+    width: 100%;
+    float: center;          
+    margin-left: auto;
+    float: center;      
+    padding: 1px;
+    margin-bottom: 20px;
+    margin-top: 10;
+    justify-content: center;
+  }
+
+
+}

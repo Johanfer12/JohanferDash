@@ -1,9 +1,10 @@
 from dash import Dash, dcc, html
 import sqlite3
-import os
 import ast
+import plotly.graph_objs as go
+import os
 
-# Obtiene la ruta absoluta al directorio raíz del código
+# Obtener la ruta absoluta al directorio raíz del código
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Conectar a la base de datos en el directorio raíz
@@ -18,6 +19,8 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS spotify_stats (
                     most_played_songs TEXT,
                     total_playtime INTEGER,
                     top_artists TEXT,
+                    top_genres TEXT,
+                    top_genres_percentages TEXT,
                     recent_favorite_songs TEXT
                 )''')
 
@@ -29,20 +32,36 @@ if row:
     most_played_songs = row[2]
     total_playtime = row[3]
     top_artists = row[4]
-    recent_favorite_songs = row[5]
+    top_genres = row[5]
+    top_genres_percentages = row[6]
+    recent_favorite_songs = row[7]
 else:
     most_played_artist = "N/A"
     most_played_songs = "N/A"
     total_playtime = 0
     top_artists = "N/A"
+    top_genres = "N/A"
+    top_genres_percentages = "N/A"
     recent_favorite_songs = "N/A"
 
 # Convertir las listas en bullet points con enlaces
 most_played_songs_list = ast.literal_eval(most_played_songs)
-most_played_songs_bullet = html.Ul([html.Li(html.A(f"{song['song_name']} - {song['artist_name']}", href=song['song_url'])) for song in most_played_songs_list])
+most_played_songs_bullet = html.P([
+    html.P([
+        html.I(className="fas fa-play", style={"margin-right": "5px", "margin-left": "12px"}),
+        html.A(f"{song['song_name']} - {song['artist_name']}", href=song['song_url'])
+    ])
+    for song in most_played_songs_list
+])
 
 recent_favorite_songs_list = ast.literal_eval(recent_favorite_songs)
-recent_favorite_songs_bullet = html.Ul([html.Li(html.A(f"{song['song_name']} - {song['artist_name']}", href=song['song_url'])) for song in recent_favorite_songs_list])
+recent_favorite_songs_bullet = html.P([
+    html.P([
+        html.I(className="fas fa-play", style={"margin-right": "5px", "margin-left": "12px"}),
+        html.A(f"{song['song_name']} - {song['artist_name']}", href=song['song_url'])
+    ])
+    for song in recent_favorite_songs_list
+])
 
 top_artists_list = top_artists.split(", ")
 top_artists_bullet = html.Ul([html.Li(artist) for artist in top_artists_list])
@@ -53,22 +72,51 @@ minutes = (total_playtime // 60) % 60
 hours = (total_playtime // 3600) % 24
 days = total_playtime // 86400
 
+# Convertir los géneros y porcentajes en datos para la gráfica de torta
+top_genres_list = ast.literal_eval(top_genres)
+top_genres_percentages_list = ast.literal_eval(top_genres_percentages)
+
+data = [go.Pie(labels=top_genres_list, values=top_genres_percentages_list)]
+
+# Incluir los estilos de Font Awesome
+external_stylesheets = [
+    "https://use.fontawesome.com/releases/v5.15.3/css/all.css"
+]
+
 # Crear una instancia de la aplicación Dash
-app = Dash(__name__)
+app = Dash(__name__, external_stylesheets=external_stylesheets)
 app.title = 'Dash de Johan'
 
 # Definir el diseño de la aplicación
 app.layout = html.Div(
+    className='container',
     children=[
-        html.H1('Estadísticas del Spotify de Johan'),
-        html.P(f'Artista más escuchado: {most_played_artist}'),
-        html.P('Canciones más reproducidas:'),
-        most_played_songs_bullet,
-        html.P(f'Tiempo total de reproducción: {days} días, {hours} horas, {minutes} minutos, {seconds} segundos'),
-        html.P('Artistas más escuchados:'),
-        top_artists_bullet,
-        html.P('Canciones favoritas recientes:'),
-        recent_favorite_songs_bullet
+        html.Div(
+            className='left-column',
+            children=[
+                html.H1('Estadísticas Spotify de Johan'),
+                html.P(f'Artista más escuchado: {most_played_artist}'),
+                html.P('Canciones más reproducidas:'),
+                most_played_songs_bullet,
+                html.P(f'Tiempo total de reproducción: {days} días, {hours} horas, {minutes} minutos, {seconds} segundos'),
+                html.P('Artistas más escuchados:'),
+                top_artists_bullet,
+                html.P('Canciones favoritas recientes:'),
+                recent_favorite_songs_bullet,
+            ]
+        ),
+        html.Div(
+            className='right-column',
+            children=[
+                dcc.Graph(
+                    id='top-genres-chart',
+                    figure={
+                        'data': data,
+                        'layout': go.Layout(title='Géneros más escuchados', height=400, width=400, template='plotly_dark')
+                    }
+                )
+            ]
+        )
     ]
 )
 
