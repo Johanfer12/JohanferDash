@@ -5,21 +5,33 @@
 }
 
 .left-column {
-  flex: 1;
-  padding: 20px;
+  width: 20%;
+  float: left;
+  background-color: #191B28; 
+  color: #FFFFFF; 
+  border-radius: 10px;
 }
 
 .right-column {
-  flex: 2;
-  padding: 20px;
+  width: 60%;
+  float: right;
+  background-color: #444654; 
+  border-top-right-radius: 10px;
 }
 
+.gradient-line {
+  position: relative;
+  height: 1px;
+  background: linear-gradient(to right, red, blue);
+  margin: 10px 0 10px 0;
+}
 
 body {
   font-family: Arial, sans-serif;
   font-size: 12px;
   background-color: #444654;
   color: #ffffff;
+  margin-left: 10px;
 }
 
 .song-item {
@@ -27,24 +39,31 @@ body {
 }
 
 a {
-  color: #ac53f5; /* Cambia el color de los hipervínculos a rojo (#ff0000) */
+  color: #d0a5f3; /* Cambia el color de los hipervínculos a rojo (#ff0000) */
   text-decoration: none; /* Elimina la subrayado por defecto de los hipervínculos */
 }
 
 a:hover {
-  color: #00ffbf; /* Cambia el color de los hipervínculos cuando se les pasa el mouse a verde (#00ff00) */
+  color: #00b7ff; /* Cambia el color de los hipervínculos cuando se les pasa el mouse a verde (#00ff00) */
+}
+
+.margin-left {
+  margin-top: 13px;
+  margin-left: 15px;
+  margin-bottom: 10px;
 }
 
 
+
 @media (max-width: 1024px) {/* Estilos para pantallas pequeñas*/
-  .der {
-    float: none;
-    width: 100%;
+  .right-column {
+    float: bottom;
+    width: 50%;
   }
   
-  .izq {
+  .left-column {
     float: none;
-    width: 100%;
+    width: 80%;
     order: -1; /* Cambiamos el orden para que vaya encima de .der */
     padding-bottom: 10px;
   }

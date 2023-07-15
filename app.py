@@ -76,7 +76,16 @@ days = total_playtime // 86400
 top_genres_list = ast.literal_eval(top_genres)
 top_genres_percentages_list = ast.literal_eval(top_genres_percentages)
 
-data = [go.Pie(labels=top_genres_list, values=top_genres_percentages_list)]
+data = [go.Pie(
+    labels=[label.title() for label in top_genres_list],  # Aplica title() a cada etiqueta
+    values=top_genres_percentages_list,
+)]
+
+line = html.Div(
+    children=[
+        html.Div(className='gradient-line')
+    ]
+)
 
 # Incluir los estilos de Font Awesome
 external_stylesheets = [
@@ -94,14 +103,19 @@ app.layout = html.Div(
         html.Div(
             className='left-column',
             children=[
-                html.H1('Estadísticas Spotify de Johan'),
-                html.P(f'Artista más escuchado: {most_played_artist}'),
-                html.P('Canciones más reproducidas:'),
+                html.H1('Estadísticas Spotify de Johan', style={'textAlign': 'center'}),
+                html.H3(f'Artista más escuchado: {most_played_artist}', className='margin-left'),
+                line,
+                html.H3('Canciones más reproducidas:', className='margin-left'),
                 most_played_songs_bullet,
-                html.P(f'Tiempo total de reproducción: {days} días, {hours} horas, {minutes} minutos, {seconds} segundos'),
-                html.P('Artistas más escuchados:'),
+                line,
+                html.H3(f'Tiempo total de reproducción:', className='margin-left'),
+                html.P(f' {days} días, {hours} horas, {minutes} minutos, {seconds} segundos', className='margin-left'),
+                line,
+                html.H3('Artistas más escuchados:', className='margin-left'),
                 top_artists_bullet,
-                html.P('Canciones favoritas recientes:'),
+                line,
+                html.H3('Canciones favoritas recientes:', className='margin-left'),
                 recent_favorite_songs_bullet,
             ]
         ),
@@ -112,7 +126,12 @@ app.layout = html.Div(
                     id='top-genres-chart',
                     figure={
                         'data': data,
-                        'layout': go.Layout(title='Géneros más escuchados', height=400, width=400, template='plotly_dark')
+                        'layout': go.Layout(title='Géneros Más Escuchados', 
+                                            height=300, width=400, 
+                                            title_x=0.5, title_font_size=18, 
+                                            paper_bgcolor= '#191B28',
+                                            template='plotly_dark',
+                                            )
                     }
                 )
             ]
