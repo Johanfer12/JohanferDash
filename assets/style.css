@@ -68,23 +68,24 @@ a:hover {
   .right-column {
     order: 2; /* Cambiamos el orden para que vaya debajo de .left-column */
     flex-grow: 1; /* Permite que la columna se expanda verticalmente */
-    width: 90%;
+    width: 100%;
+    margin-left: 25px;
     margin: 20px auto; /* Márgenes superior e inferior para separar las columnas */
   }
 
   .left-column {
     order: 1; /* Cambiamos el orden para que vaya encima de .right-column */
-    flex-grow: 1; /* Permite que la columna se expanda verticalmente */
+    flex-grow: 0; /* Permite que la columna se expanda verticalmente */
     padding-bottom: 10px;
-    width: 90%;
+    width: 100%;
     margin: 20px auto; /* Márgenes superior e inferior para separar las columnas */
   }
   body {
     font-family: Arial, sans-serif;
-    font-size: 20px;
+    font-size: 22px;
     background-color: #444654;
     color: #ffffff;
-    margin-left: 10px;
+    margin-left: 25px;
   }
 
 }
