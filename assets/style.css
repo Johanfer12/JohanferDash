@@ -61,19 +61,20 @@ a:hover {
     display: flex;
     flex-direction: column;
     align-items: center;
+    height: 100vh; /* Establece el 100% del alto de la ventana */
   }
 
   .right-column {
     order: 2; /* Cambiamos el orden para que vaya debajo de .left-column */
     width: 90%;
-    float: center;
-    margin-top: 20px;
+    margin: 20px auto; /* Márgenes superior e inferior para separar las columnas */
   }
 
   .left-column {
     order: 1; /* Cambiamos el orden para que vaya encima de .right-column */
     padding-bottom: 10px;
     width: 90%;
-    float: center;
+    margin: 20px auto; /* Márgenes superior e inferior para separar las columnas */
   }
 }
+
