@@ -131,8 +131,9 @@ app.layout = html.Div(
                                             title_x=0.5, title_font_size=18, 
                                             paper_bgcolor= '#191B28',
                                             template='plotly_dark',
+                                            margin=dict(t=70, b=30, l=20, r=20),
                                             )
-                    }
+                    },
                 )
             ]
         )

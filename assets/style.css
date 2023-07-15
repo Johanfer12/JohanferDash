@@ -13,10 +13,10 @@
 }
 
 .right-column {
-  width: 60%;
+  width: 78%;
   float: right;
   background-color: #444654; 
-  border-top-right-radius: 10px;
+  border-radius: 10px;
 }
 
 .gradient-line {
