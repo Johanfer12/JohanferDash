@@ -127,7 +127,7 @@ app.layout = html.Div(
                     figure={
                         'data': data,
                         'layout': go.Layout(title='Géneros Más Escuchados', 
-                                            height=300, width=400, 
+                                            height=300, width=835, 
                                             title_x=0.5, title_font_size=18, 
                                             paper_bgcolor= '#191B28',
                                             template='plotly_dark',

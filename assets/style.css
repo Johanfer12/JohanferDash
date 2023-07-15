@@ -55,39 +55,25 @@ a:hover {
 
 
 
-@media (max-width: 1024px) {/* Estilos para pantallas pequeñas*/
+@media (max-width: 1024px) {
+  /* Estilos para pantallas pequeñas */
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
   .right-column {
-    float: bottom;
-    width: 50%;
-  }
-  
-  .left-column {
-    float: none;
-    width: 80%;
-    order: -1; /* Cambiamos el orden para que vaya encima de .der */
-    padding-bottom: 10px;
-  }
-
-  .tabla-desplegable {
+    order: 2; /* Cambiamos el orden para que vaya debajo de .left-column */
+    width: 90%;
     float: center;
-    width: 100%; /* Cambia el valor del ancho según tus necesidades */
-    margin: 0 auto;
-    padding: 4px;
-    color: #000000;
-    justify-content: center;
-    margin-bottom: 10px;
+    margin-top: 20px;
   }
 
-  .tabla-reporte {
-    width: 100%;
-    float: center;          
-    margin-left: auto;
-    float: center;      
-    padding: 1px;
-    margin-bottom: 20px;
-    margin-top: 10;
-    justify-content: center;
+  .left-column {
+    order: 1; /* Cambiamos el orden para que vaya encima de .right-column */
+    padding-bottom: 10px;
+    width: 90%;
+    float: center;
   }
-
-
 }
