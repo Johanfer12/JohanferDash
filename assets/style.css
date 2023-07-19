@@ -37,9 +37,16 @@ body {
 
 .song-item {
   margin-right: 5px;
-  margin-left: 12px;
-  margin-bottom: -8px;
-  width: 25px;
+  margin-left: 20px;
+  margin-bottom: -5px;
+  width: 20px;
+}
+
+.artist-icon {
+  margin-right: 5px;
+  margin-left: 20px;
+  margin-bottom: -5px;
+  width: 15px;
 }
 
 a {
@@ -105,9 +112,9 @@ a:hover {
 
   .song-item {
     margin-right: 5px;
-    margin-left: 10px;
-    margin-bottom: -13px;
-    width: 35px;
+    margin-left: 20px;
+    margin-bottom: -8px;
+    width: 25px;
   }
 
   Ul {

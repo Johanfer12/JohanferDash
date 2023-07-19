@@ -44,33 +44,40 @@ else:
     top_genres_percentages = "N/A"
     recent_favorite_songs = "N/A"
 
-# Convertir las listas en bullet points con enlaces
 most_played_songs_list = ast.literal_eval(most_played_songs)
 most_played_songs_bullet = html.P([
     html.P([
-        html.Img(src="assets/play.png", className="song-item"),
-        html.A(f"{song['song_name']} - {song['artist_name']}", href=song['song_url'])
+        html.A(html.Img(src="assets/Play.svg", className="song-item"),href=song['song_url']),
+        html.A(f"{song['song_name'].split(' -')[0].strip()} - {song['artist_name']}",href=song['song_url'])
     ])
     for song in most_played_songs_list
 ])
 
-recent_favorite_songs_list = ast.literal_eval(recent_favorite_songs)
-recent_favorite_songs_bullet = html.P([
-    html.P([
-        html.Img(src="assets/play.png", className="song-item"),
-        html.A(f"{song['song_name']} - {song['artist_name']}", href=song['song_url'])
-    ])
-    for song in recent_favorite_songs_list
-])
-
-top_artists_list = top_artists.split(", ")
-top_artists_bullet = html.Ul([html.Li(artist) for artist in top_artists_list])
 
 # Convertir el tiempo total de reproducción a días, horas, minutos y segundos
 seconds = total_playtime % 60
 minutes = (total_playtime // 60) % 60
 hours = (total_playtime // 3600) % 24
 days = total_playtime // 86400
+
+recent_favorite_songs_list = ast.literal_eval(recent_favorite_songs)
+recent_favorite_songs_bullet = html.P([
+    html.P([
+        html.A(html.Img(src="assets/Play.svg", className="song-item"),href=song['song_url']),
+        html.A(f"{song['song_name'].split(' -')[0].strip()} - {song['artist_name']}", href=song['song_url'])
+    ])
+    for song in recent_favorite_songs_list
+])
+
+top_artists_list = top_artists.split(", ")
+top_artists_bullet = html.P([
+    html.P([
+        html.Img(src="assets/mic.svg", className="artist-icon"),
+        artist
+    ])
+    for artist in top_artists_list
+])
+
 
 # Convertir los géneros y porcentajes en datos para la gráfica de torta
 top_genres_list = ast.literal_eval(top_genres)
