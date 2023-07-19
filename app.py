@@ -48,7 +48,7 @@ else:
 most_played_songs_list = ast.literal_eval(most_played_songs)
 most_played_songs_bullet = html.P([
     html.P([
-        html.I(className="fas fa-play", style={"margin-right": "5px", "margin-left": "12px"}),
+        html.Img(src="assets/play.png", className="song-item"),
         html.A(f"{song['song_name']} - {song['artist_name']}", href=song['song_url'])
     ])
     for song in most_played_songs_list
@@ -57,7 +57,7 @@ most_played_songs_bullet = html.P([
 recent_favorite_songs_list = ast.literal_eval(recent_favorite_songs)
 recent_favorite_songs_bullet = html.P([
     html.P([
-        html.I(className="fas fa-play", style={"margin-right": "5px", "margin-left": "12px"}),
+        html.Img(src="assets/play.png", className="song-item"),
         html.A(f"{song['song_name']} - {song['artist_name']}", href=song['song_url'])
     ])
     for song in recent_favorite_songs_list
@@ -87,13 +87,10 @@ line = html.Div(
     ]
 )
 
-# Incluir los estilos de Font Awesome
-external_stylesheets = [
-    "https://use.fontawesome.com/releases/v5.15.3/css/all.css"
-]
+
 
 # Crear una instancia de la aplicación Dash
-app = Dash(__name__, external_stylesheets=external_stylesheets)
+app = Dash(__name__)
 app.title = 'Dash de Johan'
 
 # Definir el diseño de la aplicación
@@ -127,13 +124,14 @@ app.layout = html.Div(
                     figure={
                         'data': data,
                         'layout': go.Layout(title='Géneros Más Escuchados', 
-                                            height=300, width=835, 
                                             title_x=0.5, title_font_size=18, 
                                             paper_bgcolor= '#191B28',
                                             template='plotly_dark',
                                             margin=dict(t=70, b=30, l=20, r=20),
+                                            autosize=True,
+                                            legend=dict(orientation="h", yanchor="auto", y=-0.7, xanchor="auto", x=0.35),
                                             )
-                    },
+                    },className='graph'
                 )
             ]
         )
@@ -142,4 +140,4 @@ app.layout = html.Div(
 
 # Iniciar el servidor Dash
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(host='0.0.0.0', port=8050, debug=True)
