@@ -18,6 +18,7 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS spotify_stats (
                     most_played_artist TEXT,
                     most_played_songs TEXT,
                     total_playtime INTEGER,
+                    total_favorites	INTEGER,
                     top_artists TEXT,
                     top_genres TEXT,
                     top_genres_percentages TEXT,
@@ -31,10 +32,11 @@ if row:
     most_played_artist = row[1]
     most_played_songs = row[2]
     total_playtime = row[3]
-    top_artists = row[4]
-    top_genres = row[5]
-    top_genres_percentages = row[6]
-    recent_favorite_songs = row[7]
+    total_favorites = row[4]
+    top_artists = row[5]
+    top_genres = row[6]
+    top_genres_percentages = row[7]
+    recent_favorite_songs = row[8]
 else:
     most_played_artist = "N/A"
     most_played_songs = "N/A"
@@ -53,13 +55,13 @@ most_played_songs_bullet = html.P([
     for song in most_played_songs_list
 ])
 
-
 # Convertir el tiempo total de reproducción a días, horas, minutos y segundos
 seconds = total_playtime % 60
 minutes = (total_playtime // 60) % 60
 hours = (total_playtime // 3600) % 24
 days = total_playtime // 86400
 
+# Obtener las canciones guardadas como favoritas
 recent_favorite_songs_list = ast.literal_eval(recent_favorite_songs)
 recent_favorite_songs_bullet = html.P([
     html.P([
@@ -114,7 +116,7 @@ app.layout = html.Div(
                 most_played_songs_bullet,
                 line,
                 html.H3(f'Tiempo total de reproducción:', className='margin-left'),
-                html.P(f' {days} días, {hours} horas, {minutes} minutos, {seconds} segundos', className='margin-left'),
+                html.P(f' {days} días, {hours} horas, {minutes} minutos, {seconds} segundos en  {total_favorites} canciones.', className='margin-left'),
                 line,
                 html.H3('Artistas más escuchados:', className='margin-left'),
                 top_artists_bullet,

@@ -18,6 +18,7 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS spotify_stats (
                 most_played_artist TEXT,
                 most_played_songs TEXT, 
                 total_playtime INTEGER,
+                total_favorites INTEGER,
                 top_artists TEXT,
                 top_genres TEXT,
                 top_genres_percentages TEXT,
@@ -33,7 +34,7 @@ token = util.prompt_for_user_token(USERNAME, scope, client_id=CLIENT_ID, client_
 sp = spotipy.Spotify(auth=token)
 
 # Obtener el artista más escuchado
-top_artists = sp.current_user_top_artists(limit=1, time_range='long_term')
+top_artists = sp.current_user_top_artists(limit=1, time_range='short_term')
 if top_artists['items']:
     most_played_artist = top_artists['items'][0]['name']
     most_played_artist_image = top_artists['items'][0]['images'][0]['url'] if top_artists['items'][0]['images'] else None
@@ -42,7 +43,7 @@ else:
     most_played_artist_image = None
 
 # Obtener las 5 canciones más reproducidas
-top_tracks = sp.current_user_top_tracks(limit=5, time_range='long_term')
+top_tracks = sp.current_user_top_tracks(limit=5, time_range='short_term')
 most_played_songs = []
 for track in top_tracks['items']:
     song_name = track['name']
@@ -51,29 +52,36 @@ for track in top_tracks['items']:
     most_played_songs.append({'song_name': song_name, 'artist_name': artist_name, 'song_url': song_url})
 
 # Obtener la duración total de reproducción
-playlists = sp.current_user_playlists()
 total_playtime = 0
 
 # Obtener las canciones guardadas como favoritos
-favorite_songs = sp.current_user_saved_tracks(limit=50)  # Aumenta el límite si es necesario
+def get_all_saved_tracks(sp):
+    all_tracks = []
+    results = sp.current_user_saved_tracks(limit=50)
+    all_tracks.extend(results['items'])
+    
+    while results['next']:
+        results = sp.next(results)
+        all_tracks.extend(results['items'])
+    
+    return all_tracks
 
-# Sumar la duración de cada canción
-for track in favorite_songs['items']:
+# Obtener todas las canciones guardadas como favoritos
+favorite_songs = get_all_saved_tracks(sp)
+
+# Calcular el número total de canciones favoritas
+total_favorites = len(favorite_songs)
+
+# Sumar la duración de cada canción favorita
+for track in favorite_songs:
     duration_ms = track['track']['duration_ms']
+    print(track['track']['name'])  # Muestra el nombre de la canción para verificar que se está iterando correctamente
     total_playtime += duration_ms
-
-# Obtener las listas de reproducción
-playlists = sp.current_user_playlists()
-
-# Sumar la duración de cada canción en las listas de reproducción
-for playlist in playlists['items']:
-    tracks = sp.playlist_tracks(playlist['id'], fields='items(track(duration_ms))')
-    total_playtime += sum(track['track']['duration_ms'] for track in tracks['items'])
 
 total_playtime = total_playtime // 1000  # Convertir de milisegundos a segundos
 
 # Obtener los 5 artistas más escuchados
-top_artists = sp.current_user_top_artists(limit=5, time_range='long_term')
+top_artists = sp.current_user_top_artists(limit=5, time_range='short_term')
 top_artists_names = [artist['name'] for artist in top_artists['items']]
 
 # Obtener los 5 géneros más escuchados con sus porcentajes
@@ -117,8 +125,8 @@ for track in favorite_songs['items']:
 
 # Inserta las estadísticas en la base de datos
 cursor.execute('DELETE FROM spotify_stats')
-cursor.execute('INSERT INTO spotify_stats (most_played_artist, most_played_songs, total_playtime, top_artists, top_genres, top_genres_percentages, recent_favorite_songs) VALUES (?, ?, ?, ?, ?, ?, ?)',
-               (most_played_artist, str(most_played_songs), total_playtime, ", ".join(top_artists_names), str(top_genres_names), str(top_genres_percentages), str(recent_favorite_songs)))
+cursor.execute('INSERT INTO spotify_stats (most_played_artist, most_played_songs, total_playtime, total_favorites, top_artists, top_genres, top_genres_percentages, recent_favorite_songs) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+               (most_played_artist, str(most_played_songs), total_playtime, total_favorites, ", ".join(top_artists_names), str(top_genres_names), str(top_genres_percentages), str(recent_favorite_songs)))
 
 # Guarda los cambios y cierra la conexión con la base de datos
 conn.commit()
