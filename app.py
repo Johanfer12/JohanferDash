@@ -85,9 +85,13 @@ top_artists_bullet = html.P([
 top_genres_list = ast.literal_eval(top_genres)
 top_genres_percentages_list = ast.literal_eval(top_genres_percentages)
 
+# Definir los colores personalizados en tonos de azul y violeta
+custom_colors = ['#5472d3', '#7e58c2', '#a647ba', '#d43d80', '#d33da2']
+
 data = [go.Pie(
     labels=[label.title() for label in top_genres_list],  # Aplica title() a cada etiqueta
     values=top_genres_percentages_list,
+    marker=dict(colors=custom_colors),
 )]
 
 line = html.Div(
@@ -116,7 +120,7 @@ app.layout = html.Div(
                 most_played_songs_bullet,
                 line,
                 html.H3(f'Tiempo total de reproducción:', className='margin-left'),
-                html.P(f' {days} días, {hours} horas, {minutes} minutos, {seconds} segundos en  {total_favorites} canciones.', className='margin-left'),
+                html.P(f' {days} días, {hours} horas, {minutes} minutos, {seconds} segundos en  {total_favorites} canciones.', className='songs-time'),
                 line,
                 html.H3('Artistas más escuchados:', className='margin-left'),
                 top_artists_bullet,

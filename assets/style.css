@@ -49,6 +49,11 @@ body {
   width: 15px;
 }
 
+.songs-time {
+  margin-right: 5px;
+  margin-left: 25px;
+}
+
 a {
   color: #d0a5f3; /* Cambia el color de los hipervínculos a rojo (#ff0000) */
   text-decoration: none; /* Elimina la subrayado por defecto de los hipervínculos */
