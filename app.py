@@ -49,7 +49,7 @@ else:
 most_played_songs_list = ast.literal_eval(most_played_songs)
 most_played_songs_bullet = html.P([
     html.P([
-        html.A(html.Img(src="assets/Play.svg", className="song-item"),href=song['song_url']),
+        html.A(html.Img(src="assets/Play.svg", className="song-icon"),href=song['song_url']),
         html.A(f"{song['song_name'].split(' -')[0].strip()} - {song['artist_name']}",href=song['song_url'])
     ])
     for song in most_played_songs_list
@@ -65,7 +65,7 @@ days = total_playtime // 86400
 recent_favorite_songs_list = ast.literal_eval(recent_favorite_songs)
 recent_favorite_songs_bullet = html.P([
     html.P([
-        html.A(html.Img(src="assets/Play.svg", className="song-item"),href=song['song_url']),
+        html.A(html.Img(src="assets/Play.svg", className="song-icon"),href=song['song_url']),
         html.A(f"{song['song_name'].split(' -')[0].strip()} - {song['artist_name']}", href=song['song_url'])
     ])
     for song in recent_favorite_songs_list
@@ -80,6 +80,12 @@ top_artists_bullet = html.P([
     for artist in top_artists_list
 ])
 
+playtime = html.P(
+    html.Div([
+        html.Img(src="assets/time.svg", className="time-icon"),
+        html.Span(f' {days} Días, {hours} Horas, {minutes} Minutos, {seconds} Segundos en {total_favorites} Canciones.', className='songs-time')
+    ], className="time-container")
+)
 
 # Convertir los géneros y porcentajes en datos para la gráfica de torta
 top_genres_list = ast.literal_eval(top_genres)
@@ -100,8 +106,6 @@ line = html.Div(
     ]
 )
 
-
-
 # Crear una instancia de la aplicación Dash
 app = Dash(__name__)
 app.title = 'Dash de Johan'
@@ -120,7 +124,7 @@ app.layout = html.Div(
                 most_played_songs_bullet,
                 line,
                 html.H3(f'Tiempo total de reproducción:', className='margin-left'),
-                html.P(f' {days} días, {hours} horas, {minutes} minutos, {seconds} segundos en  {total_favorites} canciones.', className='songs-time'),
+                playtime,
                 line,
                 html.H3('Artistas más escuchados:', className='margin-left'),
                 top_artists_bullet,

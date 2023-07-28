@@ -27,31 +27,50 @@
   margin: 10px 10px 10px 10px;
 }
 
+@font-face {
+  font-family: 'Ubuntu'; 
+  src: url('Ubuntu.ttf');
+}
+
 body {
-  font-family: Arial, sans-serif;
-  font-size: 12px;
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 14px;
   background-color: #444654;
   color: #ffffff;
   margin-left: 10px;
 }
 
-.song-item {
+.song-icon {
   margin-right: 5px;
-  margin-left: 20px;
+  margin-left: 23px;
   margin-bottom: -5px;
   width: 20px;
 }
 
-.artist-icon {
-  margin-right: 5px;
+
+.time-icon {
+  width: 25px;
   margin-left: 20px;
-  margin-bottom: -5px;
-  width: 15px;
+  margin-right: 3px;
 }
 
 .songs-time {
   margin-right: 5px;
+  margin-left: 0px;
+  margin-bottom: 0px;
+}
+
+.time-container {
+  display: flex;
+  align-items: center;
+  margin-top: -5px;
+}
+
+.artist-icon {
+  margin-right: 7px;
   margin-left: 25px;
+  margin-bottom: -5px;
+  width: 15px;
 }
 
 a {
@@ -102,8 +121,8 @@ a:hover {
   }
   
   body {
-    font-family: Arial, sans-serif;
-    font-size: 12px;
+    font-family: Ubuntu, sans-serif;
+    font-size: 15px;
     background-color: #444654;
     color: #ffffff;
     margin-left: 5px;
