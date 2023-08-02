@@ -114,7 +114,7 @@ total_duration = sum(duration for _, duration in top_genres_results)
 top_genres_percentages_list = [(duration / total_duration) * 100 for _, duration in top_genres_results]
 
 # Definir los colores personalizados en tonos de azul y violeta
-custom_colors = ['#5472d3', '#7e58c2', '#a647ba', '#d43d80', '#d33da2']
+custom_colors = ['#d193ff', '#9783ff', '#7d2799', '#3345b4', '#a836cc']
 
 data = [go.Pie(
     labels=[label.title() for label in top_genres_list],  # Aplica title() a cada etiqueta
