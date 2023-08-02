@@ -1,8 +1,8 @@
 from dash import Dash, dcc, html
 import sqlite3
-import ast
 import plotly.graph_objs as go
 import os
+from datetime import datetime, timedelta
 
 # Obtener la ruta absoluta al directorio raíz del código
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -12,73 +12,81 @@ db_path = os.path.join(base_dir, 'spotify_stats.db')
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 
-# Crear una tabla para almacenar las estadísticas
-cursor.execute('''CREATE TABLE IF NOT EXISTS spotify_stats (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    most_played_artist TEXT,
-                    most_played_songs TEXT,
-                    total_playtime INTEGER,
-                    total_favorites	INTEGER,
-                    top_artists TEXT,
-                    top_genres TEXT,
-                    top_genres_percentages TEXT,
-                    recent_favorite_songs TEXT
-                )''')
+#Top artist
+cursor.execute('''SELECT artist_name, COUNT(*) as play_count
+                  FROM spotify_favorites
+                  GROUP BY artist_name
+                  ORDER BY play_count DESC
+                  LIMIT 1''')
 
-# Obtén las estadísticas desde la base de datos
-cursor.execute('SELECT * FROM spotify_stats LIMIT 1')
-row = cursor.fetchone()
-if row:
-    most_played_artist = row[1]
-    most_played_songs = row[2]
-    total_playtime = row[3]
-    total_favorites = row[4]
-    top_artists = row[5]
-    top_genres = row[6]
-    top_genres_percentages = row[7]
-    recent_favorite_songs = row[8]
-else:
-    most_played_artist = "N/A"
-    most_played_songs = "N/A"
-    total_playtime = 0
-    top_artists = "N/A"
-    top_genres = "N/A"
-    top_genres_percentages = "N/A"
-    recent_favorite_songs = "N/A"
+most_played_artist = cursor.fetchone()
 
-most_played_songs_list = ast.literal_eval(most_played_songs)
+#Top songs
+cursor.execute('SELECT * FROM spotify_top_songs')
+most_played_songs_list = cursor.fetchall()
 most_played_songs_bullet = html.P([
     html.P([
-        html.A(html.Img(src="assets/Play.svg", className="song-icon"),href=song['song_url']),
-        html.A(f"{song['song_name'].split(' -')[0].strip()} - {song['artist_name']}",href=song['song_url'])
+        html.A(html.Img(src="assets/Play.svg", className="song-icon"), href=str(song[3])),
+        html.A(f"{str(song[1]).split(' -')[0].split('(')[0].strip()} - {str(song[2])}", href=str(song[3]))
     ])
     for song in most_played_songs_list
 ])
 
-# Convertir el tiempo total de reproducción a días, horas, minutos y segundos
-seconds = total_playtime % 60
-minutes = (total_playtime // 60) % 60
-hours = (total_playtime // 3600) % 24
-days = total_playtime // 86400
+#Duración Total
+cursor.execute('SELECT SUM(duration_ms) FROM spotify_favorites')
+total_duration_ms = cursor.fetchone()[0]
+total_playtime_seconds = total_duration_ms // 1000  # Dividir para obtener los segundos sin decimales
+
+# Convertir el tiempo total de reproducción a días, horas, minutos y segundos enteros
+seconds = total_playtime_seconds % 60
+minutes = (total_playtime_seconds // 60) % 60
+hours = (total_playtime_seconds // 3600) % 24
+days = total_playtime_seconds // 86400
 
 # Obtener las canciones guardadas como favoritas
-recent_favorite_songs_list = ast.literal_eval(recent_favorite_songs)
+cursor.execute('SELECT * FROM spotify_favorites ORDER BY added_at ASC LIMIT 5')
+recent_favorite_songs_list = cursor.fetchall()
+
 recent_favorite_songs_bullet = html.P([
     html.P([
-        html.A(html.Img(src="assets/Play.svg", className="song-icon"),href=song['song_url']),
-        html.A(f"{song['song_name'].split(' -')[0].strip()} - {song['artist_name']}", href=song['song_url'])
+        html.A(html.Img(src="assets/Play.svg", className="song-icon"), href=str(song[3])),
+        html.A(f"{str(song[1]).split(' -')[0].split('(')[0].strip()} - {str(song[2])}", href=str(song[3]))
     ])
     for song in recent_favorite_songs_list
 ])
 
-top_artists_list = top_artists.split(", ")
+# Calcular la fecha hace 4 semanas desde la fecha actual
+end_date = datetime.now()
+start_date = end_date - timedelta(weeks=4)
+
+# Convertir las fechas a formato de texto (YYYY-MM-DD HH:MM:SS) para utilizar en la consulta
+start_date_str = start_date.strftime('%Y-%m-%d %H:%M:%S')
+end_date_str = end_date.strftime('%Y-%m-%d %H:%M:%S')
+
+# Ejecutar la consulta SQL para obtener los 5 artistas más frecuentes en las últimas 4 semanas
+cursor.execute('''SELECT artist_name, COUNT(*) as frequency
+                  FROM spotify_favorites
+                  WHERE added_at BETWEEN ? AND ?
+                  GROUP BY artist_name
+                  ORDER BY frequency DESC
+                  LIMIT 5''', (start_date_str, end_date_str))
+
+# Obtener todos los registros y almacenarlos en una lista de tuplas (artista, frecuencia)
+top_artists_list = cursor.fetchall()
+
 top_artists_bullet = html.P([
     html.P([
         html.Img(src="assets/mic.svg", className="artist-icon"),
-        artist
+        artist[0]
     ])
     for artist in top_artists_list
 ])
+
+# Ejecutar la consulta SQL para obtener el máximo valor del ID en la tabla
+cursor.execute('SELECT MAX(id) FROM spotify_favorites')
+
+# Obtener el resultado de la consulta
+total_favorites = cursor.fetchone()[0]
 
 playtime = html.P(
     html.Div([
@@ -88,8 +96,8 @@ playtime = html.P(
 )
 
 # Convertir los géneros y porcentajes en datos para la gráfica de torta
-top_genres_list = ast.literal_eval(top_genres)
-top_genres_percentages_list = ast.literal_eval(top_genres_percentages)
+top_genres_list = ['Pop', 'Rock', 'Hip Hop', 'Electronic', 'Jazz']
+top_genres_percentages_list = [20.5, 15.2, 12.8, 8.7, 7.3]
 
 # Definir los colores personalizados en tonos de azul y violeta
 custom_colors = ['#5472d3', '#7e58c2', '#a647ba', '#d43d80', '#d33da2']
@@ -118,7 +126,7 @@ app.layout = html.Div(
             className='left-column',
             children=[
                 html.H1('Estadísticas Spotify de Johan', style={'textAlign': 'center'}),
-                html.H3(f'Artista más escuchado: {most_played_artist}', className='margin-left'),
+                html.H3(f'Artista más escuchado: {most_played_artist[0]}', className='margin-left'),
                 line,
                 html.H3('Canciones más reproducidas:', className='margin-left'),
                 most_played_songs_bullet,
