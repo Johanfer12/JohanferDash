@@ -96,8 +96,22 @@ playtime = html.P(
 )
 
 # Convertir los géneros y porcentajes en datos para la gráfica de torta
-top_genres_list = ['Pop', 'Rock', 'Hip Hop', 'Electronic', 'Jazz']
-top_genres_percentages_list = [20.5, 15.2, 12.8, 8.7, 7.3]
+
+# Ejecutar la consulta para obtener la duración total por género
+cursor.execute('''SELECT genre, SUM(duration_ms) AS total_duration
+                  FROM spotify_favorites
+                  WHERE genre != 'N/A'
+                  GROUP BY genre
+                  ORDER BY total_duration DESC
+                  LIMIT 5''')
+
+# Obtener los resultados de la consulta
+top_genres_results = cursor.fetchall()
+
+# Obtener los géneros y porcentajes
+top_genres_list = [genre for genre, _ in top_genres_results]
+total_duration = sum(duration for _, duration in top_genres_results)
+top_genres_percentages_list = [(duration / total_duration) * 100 for _, duration in top_genres_results]
 
 # Definir los colores personalizados en tonos de azul y violeta
 custom_colors = ['#5472d3', '#7e58c2', '#a647ba', '#d43d80', '#d33da2']
