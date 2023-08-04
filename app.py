@@ -5,6 +5,8 @@ import os
 from datetime import datetime, timedelta
 import dash_bootstrap_components as dbc
 from collections import defaultdict
+from dateutil.parser import parse 
+import numpy as np
 
 # Obtener la ruta absoluta al directorio raíz del código
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -97,7 +99,7 @@ playtime = html.P(
     ], className="time-container")
 )
 
-# Convertir los géneros y porcentajes en datos para la gráfica de torta
+#Gráfica de géneros y porcentajes
 
 # Ejecutar la consulta para obtener la duración total por género
 cursor.execute('''SELECT genre, SUM(duration_ms) AS total_duration
@@ -112,13 +114,22 @@ top_genres_results = cursor.fetchall()
 
 # Obtener los géneros y porcentajes
 top_genres_list = [genre for genre, _ in top_genres_results]
-total_duration = sum(duration for _, duration in top_genres_results)
-top_genres_percentages_list = [(duration / total_duration) * 100 for _, duration in top_genres_results]
+total_duration_top_genres = sum(duration for _, duration in top_genres_results)
 
-#Gráfico de torta de top géneros
+# Obtener el total de duración para todos los géneros
+cursor.execute('''SELECT SUM(duration_ms) FROM spotify_favorites WHERE genre != 'N/A' ''')
+total_duration_all_genres = cursor.fetchone()[0]
+
+# Calcular el porcentaje total de los géneros que no están en el top 5
+other_genres_percentage = ((total_duration_all_genres - total_duration_top_genres) / total_duration_all_genres) * 100
+
+# Agregar "otros" a la lista de géneros y a los porcentajes
+top_genres_list.append("Otros")
+top_genres_percentages_list = [duration / total_duration_all_genres * 100 for _, duration in top_genres_results]
+top_genres_percentages_list.append(other_genres_percentage)
 
 # Definir los colores personalizados en tonos de azul y violeta
-custom_colors = ['#d193ff', '#9783ff', '#7d2799', '#3345b4', '#a836cc']
+custom_colors = ['#d193ff', '#9783ff', '#7d2799', '#3345b4', '#a836cc', '#636efa']
 
 data_genre = [go.Pie(
     labels=[label.title() for label in top_genres_list],  # Aplica title() a cada etiqueta
@@ -244,8 +255,7 @@ bubbles_chart = dcc.Graph(
 )
 
 #Gráfica de añadidas a favoritos en el tiempo
-from dateutil.parser import parse 
-import numpy as np
+
 # Obtener las fechas de adición de las canciones
 cursor.execute('''SELECT added_at FROM spotify_favorites''')
 dates = cursor.fetchall()
@@ -348,14 +358,14 @@ app.layout = html.Div(
             className='right-column',
             children=[
                 top_genres_chart,
-                html.Abbr("🛈", title="La energía muestra la intensidad y actividad percibida en una canción.", className="Abbr_1"),
+                html.Abbr("🛈", title="La energía muestra la intensidad y actividad percibida en una canción. (Escala de 0 a 1)", className="Abbr_1"),
                 bubbles_chart                
             ]
         ),
         html.Div(
             className='right-column',
             children=[
-                html.Abbr("🛈", title="La valencia indica la positividad o negatividad emocional de una canción.", className="Abbr_2"),
+                html.Abbr("🛈", title="La valencia indica la positividad o negatividad emocional de una canción. (Escala de 0 a 1)", className="Abbr_2"),
                 valence_chart,
                 songs_chart
             ]
