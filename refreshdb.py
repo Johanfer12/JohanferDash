@@ -112,7 +112,7 @@ if num_favorites_current != num_favorites_db:
 
         # Obtener la fecha de adición a favoritos (esta información no se proporciona por la API de Spotify,
         # por lo que almacenaremos la fecha actual en formato de texto)
-        added_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        added_at = track['added_at']
 
         # Verificar si la canción ya existe en la base de datos por su URL
         cursor.execute('SELECT * FROM spotify_favorites WHERE song_url = ?', (song_url,))

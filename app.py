@@ -3,6 +3,8 @@ import sqlite3
 import plotly.graph_objs as go
 import os
 from datetime import datetime, timedelta
+import dash_bootstrap_components as dbc
+from collections import defaultdict
 
 # Obtener la ruta absoluta al directorio raíz del código
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -44,7 +46,7 @@ hours = (total_playtime_seconds // 3600) % 24
 days = total_playtime_seconds // 86400
 
 # Obtener las canciones guardadas como favoritas
-cursor.execute('SELECT * FROM spotify_favorites ORDER BY added_at ASC LIMIT 5')
+cursor.execute('SELECT * FROM spotify_favorites ORDER BY added_at DESC LIMIT 5')
 recent_favorite_songs_list = cursor.fetchall()
 
 recent_favorite_songs_bullet = html.P([
@@ -113,15 +115,202 @@ top_genres_list = [genre for genre, _ in top_genres_results]
 total_duration = sum(duration for _, duration in top_genres_results)
 top_genres_percentages_list = [(duration / total_duration) * 100 for _, duration in top_genres_results]
 
+#Gráfico de torta de top géneros
+
 # Definir los colores personalizados en tonos de azul y violeta
 custom_colors = ['#d193ff', '#9783ff', '#7d2799', '#3345b4', '#a836cc']
 
-data = [go.Pie(
+data_genre = [go.Pie(
     labels=[label.title() for label in top_genres_list],  # Aplica title() a cada etiqueta
     values=top_genres_percentages_list,
     marker=dict(colors=custom_colors),
 )]
 
+top_genres_chart = dcc.Graph(
+                    id='top-genres-chart',
+                    figure={
+                        'data': data_genre,
+                        'layout': go.Layout(title='Géneros Más Escuchados', 
+                                            title_x=0.5, title_font_size=18, 
+                                            paper_bgcolor= '#191B28',
+                                            template='plotly_dark',
+                                            margin=dict(t=70, b=30, l=20, r=20),
+                                            autosize=True,
+                                            legend=dict(orientation="h", yanchor="auto", y=-0.7, xanchor="auto", x=0.35),
+                                            )
+                    },className='graph'
+                )
+
+#Gráfica de barras valencia en el tiempo
+
+# Ejecutar la consulta para obtener la valencia y fecha de lanzamiento de cada canción
+cursor.execute('''SELECT valence, added_at
+                  FROM spotify_favorites
+                  WHERE valence IS NOT NULL AND added_at IS NOT NULL''')
+
+# Obtener los resultados de la consulta
+valence_and_dates = cursor.fetchall()
+
+# Crear un diccionario para almacenar la valencia media por año
+valence_by_year = defaultdict(list)
+
+# Procesar los resultados de la consulta y agrupar por año
+for valence, release_date in valence_and_dates:
+    year = release_date[:4]  # Obtener el año de la fecha de lanzamiento
+    valence_by_year[year].append(valence)
+
+# Calcular la valencia media para cada año
+years = []
+mean_valence = []
+for year, valences in valence_by_year.items():
+    years.append(year)
+    mean_valence.append(sum(valences) / len(valences))
+
+# Crear la gráfica de barras valencia en el tiempo
+
+years.reverse()
+data_val= [go.Bar(x=years, y=mean_valence, name='Valencia Media')]
+
+valence_chart = dcc.Graph(
+    id='valence-chart', figure={
+            'data': data_val,
+            'layout': go.Layout(title='Valencia Por Año',
+                                title_x=0.5, title_font_size=18,
+                                xaxis=dict(title='Año'),
+                                yaxis=dict(title='Valencia Media'),
+                                template='plotly_dark',
+                                paper_bgcolor='#191B28',
+                                plot_bgcolor='#191B28',
+                                margin=dict(t=70, b=30, l=20, r=20),
+                                autosize=True,
+                                legend=dict(orientation="h", yanchor="auto", y=-0.7, xanchor="auto", x=0.35)
+                                )
+                            },className='graph'
+                         )
+
+#Gráfica de burbujas de energía y valencia por cada género y su tamaño relativo
+
+# Obtener los datos para la gráfica de burbujas
+cursor.execute('''SELECT genre, COUNT(*) AS num_songs, AVG(valence) AS avg_valence, AVG(energy) AS avg_energy
+                  FROM spotify_favorites
+                  WHERE genre != "N/A"
+                  GROUP BY genre
+                  HAVING COUNT(*) >= 10''')
+    
+data = cursor.fetchall()
+
+# Definir una lista de colores personalizados para cada género
+custom_colors = ['#5472d3', '#7e58c2', '#a647ba', '#d43d80', '#d33da2', '#ff9500', '#ff3b30', '#d193ff', '#9783ff', '#7d2799', '#3345b4', '#a836cc']
+
+# Crear la gráfica de burbujas
+trace = go.Scatter(
+    x=[song[2] for song in data],  # Valence
+    y=[song[3] for song in data],  # Energy
+    mode='markers',
+    text=[f'Género: {song[0]}<br>Número de canciones: {song[1]}' for song in data],  # Información al pasar el mouse sobre las burbujas
+    marker=dict(
+        size=[song[1] for song in data],  # Tamaño de las burbujas según la cantidad de canciones
+        sizemode='area',  # Determina cómo se interpreta el tamaño (area = tamaño relativo al área)
+        sizeref=2.0 * max([song[1] for song in data]) / (50 ** 2),  # Escala para ajustar el tamaño de las burbujas (aquí el tamaño máximo será para 50 canciones)
+        sizemin=10,  # Tamaño mínimo de las burbujas
+        color=custom_colors[:len(data)],  # Asignar colores diferentes a cada burbuja
+        opacity=0.7,  # Opacidad de las burbujas
+        line=dict(width=2)  # Ancho del borde de las burbujas
+    )
+)
+
+# Definir el layout de la gráfica
+layout = go.Layout(
+    title='Canciones por Género, Valencia, Energía',
+    title_x=0.5, title_font_size=18,
+    xaxis=dict(title='Valencia'),
+    yaxis=dict(title='Energía'),
+    hovermode='closest',
+    paper_bgcolor='#191B28',
+    plot_bgcolor='#191B28',
+    font=dict(color='#ffffff'),
+    showlegend=False,
+    autosize=True
+)
+
+# Crear la figura con la gráfica y el layout
+fig = go.Figure(data=[trace], layout=layout)
+
+# Crear la gráfica de burbujas
+bubbles_chart = dcc.Graph(
+    id='bubbles-chart',
+    figure=fig,
+    className='graph'
+)
+
+#Gráfica de añadidas a favoritos en el tiempo
+from dateutil.parser import parse 
+import numpy as np
+# Obtener las fechas de adición de las canciones
+cursor.execute('''SELECT added_at FROM spotify_favorites''')
+dates = cursor.fetchall()
+
+# Crear un diccionario para almacenar la cantidad de canciones añadidas por mes
+songs_by_month = defaultdict(int)
+
+# Procesar las fechas y contar la cantidad de canciones por mes
+for date_str in dates:
+    date = parse(date_str[0])  # Parsear la fecha en formato ISO 8601
+    month_year = date.strftime('%Y-%m')
+    songs_by_month[month_year] += 1
+
+# Obtener los meses y la cantidad de canciones añadidas por mes
+months = list(songs_by_month.keys())
+songs_added = list(songs_by_month.values())
+
+# Calcular la línea de tendencia usando un ajuste polinómico
+z = np.polyfit(np.arange(len(months)), songs_added, 1)
+p = np.poly1d(z)
+trend_line = p(np.arange(len(months)))
+
+# Crear la gráfica de cantidad de canciones añadidas por mes con línea de tendencia
+data_songs = [
+    go.Scatter(
+        x=months,
+        y=songs_added,
+        mode='markers+lines',
+        name='Canciones Añadidas por Mes',
+        marker=dict(color='blue'),
+        line=dict(color='#636efa', width=2)
+    ),
+    go.Scatter(
+        x=months,
+        y=trend_line,
+        mode='lines',
+        name='Línea de Tendencia',
+        line=dict(color='orange', width=2, dash='dash')
+    )
+]
+
+layout_songs = go.Layout(
+    title='Canciones Añadidas por Mes',
+    title_x=0.5, title_font_size=18,
+    xaxis=dict(title='Mes'),
+    yaxis=dict(title='Cantidad de Canciones Añadidas'),
+    hovermode='closest',
+    paper_bgcolor='#191B28',
+    plot_bgcolor='#191B28',
+    font=dict(color='#ffffff'),
+    showlegend=True,
+    autosize=True,
+    legend=dict(orientation='h', yanchor='bottom', y=1, xanchor='right', x=1)
+)
+
+fig_songs = go.Figure(data=data_songs, layout=layout_songs)
+
+# Crear la gráfica de cantidad de canciones añadidas por mes usando dcc.Graph
+songs_chart = dcc.Graph(
+    id='songs-chart',
+    figure=fig_songs,
+    className='graph'
+)
+
+#Linea separadora de secciones
 line = html.Div(
     children=[
         html.Div(className='gradient-line')
@@ -158,20 +347,17 @@ app.layout = html.Div(
         html.Div(
             className='right-column',
             children=[
-                dcc.Graph(
-                    id='top-genres-chart',
-                    figure={
-                        'data': data,
-                        'layout': go.Layout(title='Géneros Más Escuchados', 
-                                            title_x=0.5, title_font_size=18, 
-                                            paper_bgcolor= '#191B28',
-                                            template='plotly_dark',
-                                            margin=dict(t=70, b=30, l=20, r=20),
-                                            autosize=True,
-                                            legend=dict(orientation="h", yanchor="auto", y=-0.7, xanchor="auto", x=0.35),
-                                            )
-                    },className='graph'
-                )
+                top_genres_chart,
+                html.Abbr("🛈", title="La energía muestra la intensidad y actividad percibida en una canción.", className="Abbr_1"),
+                bubbles_chart                
+            ]
+        ),
+        html.Div(
+            className='right-column',
+            children=[
+                html.Abbr("🛈", title="La valencia indica la positividad o negatividad emocional de una canción.", className="Abbr_2"),
+                valence_chart,
+                songs_chart
             ]
         )
     ]
