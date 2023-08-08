@@ -3,7 +3,6 @@ import sqlite3
 import plotly.graph_objs as go
 import os
 from datetime import datetime, timedelta
-import dash_bootstrap_components as dbc
 from collections import defaultdict
 from dateutil.parser import parse 
 import numpy as np
@@ -87,7 +86,7 @@ top_artists_bullet = html.P([
 ])
 
 # Ejecutar la consulta SQL para obtener el máximo valor del ID en la tabla
-cursor.execute('SELECT MAX(id) FROM spotify_favorites')
+cursor.execute('SELECT COUNT(*) FROM spotify_favorites')
 
 # Obtener el resultado de la consulta
 total_favorites = cursor.fetchone()[0]
@@ -179,7 +178,6 @@ for year, valences in valence_by_year.items():
 
 # Crear la gráfica de barras valencia en el tiempo
 
-years.reverse()
 data_val= [go.Bar(x=years, y=mean_valence, name='Valencia Media')]
 
 valence_chart = dcc.Graph(
@@ -236,6 +234,7 @@ layout = go.Layout(
     title_x=0.5, title_font_size=18,
     xaxis=dict(title='Valencia'),
     yaxis=dict(title='Energía'),
+    margin=dict(t=100, b=30, l=20, r=20),
     hovermode='closest',
     paper_bgcolor='#191B28',
     plot_bgcolor='#191B28',
@@ -302,6 +301,7 @@ layout_songs = go.Layout(
     title_x=0.5, title_font_size=18,
     xaxis=dict(title='Mes'),
     yaxis=dict(title='Cantidad de Canciones Añadidas'),
+    margin=dict(t=100, b=30, l=20, r=20),
     hovermode='closest',
     paper_bgcolor='#191B28',
     plot_bgcolor='#191B28',

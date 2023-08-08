@@ -34,6 +34,20 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS spotify_top_songs (
                 song_url TEXT
             )''')
 
+# Modificar la tabla para incluir las canciones eliminadas de los favoritos
+cursor.execute('''CREATE TABLE IF NOT EXISTS deleted_songs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                song_name TEXT,
+                artist_name TEXT,
+                genre TEXT,
+                song_url TEXT,
+                duration_ms INTEGER,
+                valence REAL,
+                energy REAL,
+                added_at TEXT,
+                deleted_at TEXT
+            )''')
+
 # Obtener el token de acceso
 scope = "user-library-read user-top-read"
 redirect_uri = "http://localhost:8888/callback"
@@ -69,8 +83,9 @@ for song in most_played_songs:
     cursor.execute('INSERT INTO spotify_top_songs (song_name, artist_name, song_url) VALUES (?, ?, ?)',
                    (song['song_name'], song['artist_name'], song['song_url']))
 
-# Obtener todas las canciones guardadas como favoritos
-favorite_songs = get_all_saved_tracks(sp)
+
+# Obtener todas las canciones guardadas como favoritos en orden descendente (las más nuevas primero)
+favorite_songs = get_all_saved_tracks(sp)[::-1]
 
 # Obtener el número total de canciones favoritas actuales y el número total en la base de datos
 num_favorites_current = len(favorite_songs)
@@ -85,46 +100,47 @@ cursor.execute('SELECT song_url FROM spotify_favorites')
 existing_urls = {url[0] for url in cursor.fetchall()}
 urls_to_delete = existing_urls - favorite_urls
 
-for url in urls_to_delete:
-    cursor.execute('DELETE FROM spotify_favorites WHERE song_url = ?', (url,))
-
-# Verificar si el número total de canciones favoritas ha cambiado
-if num_favorites_current != num_favorites_db:
-    # Actualizar la base de datos si el número de canciones ha cambiado
-
-    # Insertar cada canción favorita en la base de datos con su información relevante
+try:
+    # Eliminar canciones que ya no están en la lista de favoritos
+    if urls_to_delete:
+        # Mover canciones eliminadas a la tabla deleted_songs
+        for url in urls_to_delete:
+            cursor.execute('SELECT * FROM spotify_favorites WHERE song_url = ?', (url,))
+            deleted_song = cursor.fetchone()
+            cursor.execute('INSERT INTO deleted_songs (song_name, artist_name, genre, song_url, duration_ms, valence, energy, added_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                           (deleted_song[1], deleted_song[2], deleted_song[3], deleted_song[4], deleted_song[5], deleted_song[6], deleted_song[7], deleted_song[8], datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+            cursor.execute('DELETE FROM spotify_favorites WHERE song_url = ?', (url,))
+    
+    # Insertar las nuevas canciones favoritas en la base de datos
     for track in favorite_songs:
-        song_name = track['track']['name']
-        artist_name = track['track']['artists'][0]['name']
-
-        # Obtener el género del artista
-        artist = sp.artist(track["track"]["artists"][0]["external_urls"]["spotify"])
-        genres = artist.get("genres", [])
-        genre = genres[0] if genres else "N/A"  # Si no hay género, se usará "N/A"
-        
         song_url = track['track']['external_urls']['spotify']
-        duration_ms = track['track']['duration_ms']
+        cursor.execute('SELECT id FROM spotify_favorites WHERE song_url = ?', (song_url,))
+        existing_song_id = cursor.fetchone()
 
-        # Obtener la valencia y energía de la canción
-        audio_features = sp.audio_features(track['track']['id'])[0]
-        valence = audio_features['valence']
-        energy = audio_features['energy']
+        if not existing_song_id:
+            song_name = track['track']['name']
+            artist_name = track['track']['artists'][0]['name']
 
-        # Obtener la fecha de adición a favoritos (esta información no se proporciona por la API de Spotify,
-        # por lo que almacenaremos la fecha actual en formato de texto)
-        added_at = track['added_at']
+            artist = sp.artist(track["track"]["artists"][0]["external_urls"]["spotify"])
+            genres = artist.get("genres", [])
+            genre = genres[0] if genres else "N/A"
+            
+            duration_ms = track['track']['duration_ms']
 
-        # Verificar si la canción ya existe en la base de datos por su URL
-        cursor.execute('SELECT * FROM spotify_favorites WHERE song_url = ?', (song_url,))
-        existing_song = cursor.fetchone()
+            audio_features = sp.audio_features(track['track']['id'])[0]
+            valence = audio_features['valence']
+            energy = audio_features['energy']
 
-        if not existing_song:
-            # Insertar la canción en la base de datos si no existe
+            added_at = track['added_at']
+
             cursor.execute('INSERT INTO spotify_favorites (song_name, artist_name, genre, song_url, duration_ms, valence, energy, added_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                            (song_name, artist_name, genre, song_url, duration_ms, valence, energy, added_at))
-else:
-    print("No se encontraron cambios en la lista de canciones favoritas.")
+except sqlite3.Error as e:
+    print("Error SQL:", e)
+    conn.rollback()  # Revertir la transacción en caso de error
 
-# Guarda los cambios y cierra la conexión con la base de datos
+# Confirmar la transacción
 conn.commit()
+
+# Cerrar la conexión con la base de datos
 conn.close()
