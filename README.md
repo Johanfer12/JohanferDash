@@ -67,4 +67,4 @@ python app.py
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for more details.
+This work is licensed under a Creative Commons Attribution 4.0 International License. See the `LICENSE` file for more details.
