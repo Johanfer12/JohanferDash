@@ -52,8 +52,8 @@ recent_favorite_songs_list = cursor.fetchall()
 
 recent_favorite_songs_bullet = html.P([
     html.P([
-        html.A(html.Img(src="assets/Play.svg", className="song-icon"), href=str(song[3])),
-        html.A(f"{str(song[1]).split(' -')[0].split('(')[0].strip()} - {str(song[2])}", href=str(song[3]))
+        html.A(html.Img(src="assets/Play.svg", className="song-icon"), href=str(song[4])),
+        html.A(f"{str(song[1]).split(' -')[0].split('(')[0].strip()} - {str(song[2])}", href=str(song[4]))
     ])
     for song in recent_favorite_songs_list
 ])
