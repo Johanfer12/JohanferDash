@@ -338,7 +338,7 @@ app.layout = html.Div(
         html.Div(
             className='left-column',
             children=[
-                html.H1('Estadísticas Spotify de Johan', style={'textAlign': 'center'}),
+                html.H1('Estadísticas Spotify de Johan (Test)', style={'textAlign': 'center'}),
                 html.H3(f'Artista más escuchado: {most_played_artist[0]}', className='margin-left'),
                 line,
                 html.H3('Canciones más reproducidas:', className='margin-left'),
