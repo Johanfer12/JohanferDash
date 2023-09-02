@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 from dateutil.parser import parse 
 import numpy as np
+from dash.dependencies import Input, Output
 
 # Obtener la ruta absoluta al directorio raíz del código
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -327,51 +328,56 @@ line = html.Div(
     ]
 )
 
+#Diseño de la sección Spotify
+spotify_tab_layout = html.Div(className='container',children=[
+    html.Div(className='left-column',children=[
+        html.H1('Estadísticas Spotify', style={'textAlign': 'center'}),
+        html.H3(f'Artista más escuchado: {most_played_artist[0]}', className='margin-left'),
+        line,
+        html.H3('Canciones más reproducidas:', className='margin-left'),
+        most_played_songs_bullet,
+        line,
+        html.H3(f'Tiempo total de reproducción:', className='margin-left'),
+        playtime,
+        line,
+        html.H3('Artistas más escuchados:', className='margin-left'),
+        top_artists_bullet,
+        line,
+        html.H3('Canciones favoritas recientes:', className='margin-left'),
+        recent_favorite_songs_bullet,
+    ]
+        ),
+    html.Div(className='right-column',children=[
+            top_genres_chart,
+            html.Abbr("🛈", title="La energía muestra la intensidad y actividad percibida en una canción. (Escala de 0 a 1)", className="Abbr_1"),
+            bubbles_chart                
+            ]
+        ),
+    html.Div(className='right-column',children=[
+            html.Abbr("🛈", title="La valencia indica la positividad o negatividad emocional de una canción. (Escala de 0 a 1)", className="Abbr_2"),
+            valence_chart,
+            songs_chart
+            ]
+        ),
+    ]
+)
+
+#Diseño de la sección Yputube
+youtube_tab_layout = html.H1('Estadísticas Youtube en Construcción', style={'textAlign': 'center'})
+
 # Crear una instancia de la aplicación Dash
 app = Dash(__name__)
 app.title = 'Dash de Johan'
 
 # Definir el diseño de la aplicación
-app.layout = html.Div(
-    className='container',
-    children=[
-        html.Div(
-            className='left-column',
-            children=[
-                html.H1('Estadísticas Spotify de Johan', style={'textAlign': 'center'}),
-                html.H3(f'Artista más escuchado: {most_played_artist[0]}', className='margin-left'),
-                line,
-                html.H3('Canciones más reproducidas:', className='margin-left'),
-                most_played_songs_bullet,
-                line,
-                html.H3(f'Tiempo total de reproducción:', className='margin-left'),
-                playtime,
-                line,
-                html.H3('Artistas más escuchados:', className='margin-left'),
-                top_artists_bullet,
-                line,
-                html.H3('Canciones favoritas recientes:', className='margin-left'),
-                recent_favorite_songs_bullet,
-            ]
-        ),
-        html.Div(
-            className='right-column',
-            children=[
-                top_genres_chart,
-                html.Abbr("🛈", title="La energía muestra la intensidad y actividad percibida en una canción. (Escala de 0 a 1)", className="Abbr_1"),
-                bubbles_chart                
-            ]
-        ),
-        html.Div(
-            className='right-column',
-            children=[
-                html.Abbr("🛈", title="La valencia indica la positividad o negatividad emocional de una canción. (Escala de 0 a 1)", className="Abbr_2"),
-                valence_chart,
-                songs_chart
-            ]
-        )
-    ]
-)
+app.layout = dcc.Tabs(id='vertical-tabs', value='tab-spotify', colors={'border': '#191B28', 'primary': '#191B28', 'background': '#191B28'}, children=[
+                dcc.Tab(label=' ',value='tab-spotify', className='tab-style-sp', children=[
+                    spotify_tab_layout
+                ]),
+                dcc.Tab(label=' ', value='tab-youtube', className='tab-style-yt', children=[
+                    youtube_tab_layout
+                ])
+            ], vertical=True)
 
 # Iniciar el servidor Dash
 if __name__ == '__main__':
