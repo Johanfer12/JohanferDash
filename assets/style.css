@@ -10,27 +10,18 @@ body {
   color: #ffffff;
 }
 
-.container {
-  
-  flex-direction: row;
-  justify-content: space-between;
-  height: 100%;
-  width: 100%;
-}
-
 .left-column {
   width: 32%;
   float: left;
-  height: 100%;
   background-color: #191B28; 
   color: #FFFFFF; 
   border-radius: 10px;  
-  min-width: 379px;
+
 }
 
 .right-column {
   width: 33%;
-  float: right;  
+  float: right;
   background-color: #191B28; 
   border-radius: 10px;
   margin-left: 10px;
@@ -124,10 +115,10 @@ a:hover {
 }
 
 .wordcloud {
-  margin-left: 40px;
+  margin-left: 60px;
   margin-right: 20px;
   width: 90%;
-  margin-top: 20px;
+  margin-top: 25px;
   margin-bottom: 10px;
   align-items: center;
 }
@@ -135,17 +126,17 @@ a:hover {
 .wordcloud-title {
   text-align: center;
   margin-top: 30px;
+  margin-left: -60px;
   font-family: "Open Sans", verdana, arial, sans-serif;
-  font-size: 18px;
+  font-size: 17px;
 }
-
 
 .tab-style-sp {
   background-image: url('/assets/sp.svg');
   background-repeat: no-repeat;
   background-position: center;
   background-size: 30px 30px;
-  margin-right: 5px;
+  margin-right: 3px;
   border-radius: 10px;
   margin-bottom: 5px;
 }
@@ -155,7 +146,7 @@ a:hover {
   background-repeat: no-repeat;
   background-position: center;
   background-size: 40px 30px;
-  margin-right: 5px;
+  margin-right: 3px;
   border-radius: 10px;
   margin-bottom: 5px;
 }
@@ -164,15 +155,23 @@ a:hover {
   mix-blend-mode: multiply; /* Cambia el modo de mezcla según tu preferencia */
 }
 
+::-webkit-scrollbar{
+  opacity:0;
+  background: transparent;
+}
+
+
 @media (max-width: 1080px) {
   /* Estilos para pantallas pequeñas */
-  .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center; /* Centra verticalmente las columnas */
-    width: 100%;
 
+  .left-column {
+    order: 1; /* Cambiamos el orden para que vaya encima de .right-column */
+    float: right;
+    flex-grow: 0; /* Permite que la columna se expanda verticalmente */
+    padding-bottom: 10px;
+    width: 98%;
+    font-size: 12px;
+    margin: 15px auto; /* Márgenes superior e inferior para separar las columnas */
   }
 
   .right-column {
@@ -182,6 +181,10 @@ a:hover {
     margin: 15px auto; /* Márgenes superior e inferior para separar las columnas */
   }
 
+  .wordcloud {
+    margin-left: 20px;
+  }
+
   .Abbr_1 {
     display: none;
   }
@@ -189,17 +192,7 @@ a:hover {
   .Abbr_2 {
     display: none;
   }
-
-  .left-column {
-    order: 1; /* Cambiamos el orden para que vaya encima de .right-column */
-    flex-grow: 0; /* Permite que la columna se expanda verticalmente */
-    padding-bottom: 10px;
-    width: 98%;
-    font-size: 12px;
-    margin-left: 0px auto;
-    margin: 15px auto; /* Márgenes superior e inferior para separar las columnas */
-  }
-  
+ 
   body {
     font-family: Ubuntu, sans-serif;
     font-size: 15px;

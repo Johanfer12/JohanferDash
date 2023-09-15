@@ -520,19 +520,22 @@ wordcloud_data = [[word, words.count(word)] for word in set(words)]
 filtered_wordcloud_data = [
     [word, count]
     for word, count in wordcloud_data
-    if count >= 5 and '@' not in word and ':' not in word and '!' not in word and '&' not in word
+    if count >= 5 and '@' not in word and '#' not in word and ':' not in word and '!' not in word and '&' not in word and '¡' not in word
 ]
+
+# Ordenar la lista de palabras por frecuencia de mayor a menor
+filtered_wordcloud_data = sorted(filtered_wordcloud_data, key=lambda x: x[1], reverse=True)
 
 word_cloud =DashWordcloud(
             id='wordcloud',
             list=filtered_wordcloud_data,
-            width=320,
+            width=310,
             height=370,
             gridSize=16,
             color='#ffffff',  # Cambia el color del texto de la nube de palabras
             backgroundColor='#191B28',  # Cambia el color de fondo de la nube de palabras
             shuffle=False,
-            rotateRatio=0.5,
+            rotateRatio=1,
             shrinkToFit=False,
             shape='circle',
             hover=True
@@ -562,7 +565,7 @@ xt_tab_layout = html.Div(children=[
     ]),
 	html.Div(className='right-column',children=[
             days_chart,
-            tweets_chart                
+            #tweets_chart                
             ]
         ),
 	html.Div(className='right-column',children=[
@@ -579,12 +582,12 @@ app.title = 'Dash de Johan'
 # Definir el diseño de la aplicación
 app.layout = dcc.Tabs(id='vertical-tabs', value='tab-spotify', colors={'border': '#191B28', 'primary': '#191B28', 'background': '#191B28'}, children=[
                 dcc.Tab(label=' ',value='tab-spotify', className='tab-style-sp', children=[
-                    html.Div(style={'width': '94vw', 'height': '100vh'}, children=[
+                    html.Div(style={'width': '95vw', 'height': '100vh'}, children=[
                         spotify_tab_layout
                     ])
                 ]),
                 dcc.Tab(label=' ', value='tab-xt', className='tab-style-xt', children=[
-                    html.Div(style={'width': '94vw', 'height': '100vh'}, children=[
+                    html.Div(style={'width': '95vw', 'height': '100vh'}, children=[
                         xt_tab_layout
                     ])    
                 ])
