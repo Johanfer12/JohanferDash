@@ -1,26 +1,40 @@
+@font-face {
+  font-family: 'Ubuntu'; 
+  src: url('Ubuntu.ttf');
+}
+
+body {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 14px;
+  background-color: #444654;
+  color: #ffffff;
+}
+
 .container {
-  display: flex;
+  
   flex-direction: row;
   justify-content: space-between;
-  height: auto;
-  width: 113.5%;
+  height: 100%;
+  width: 100%;
 }
 
 .left-column {
-  width: 30%;
+  width: 32%;
   float: left;
+  height: 100%;
   background-color: #191B28; 
   color: #FFFFFF; 
-  border-radius: 10px;
+  border-radius: 10px;  
+  min-width: 379px;
 }
 
 .right-column {
-  width: 34%;
+  width: 33%;
   float: right;  
   background-color: #191B28; 
   border-radius: 10px;
+  margin-left: 10px;
 }
-
 
 .Abbr_1 {
   color: #6f00ff;
@@ -49,26 +63,12 @@
   margin: 10px 10px 10px 10px;
 }
 
-@font-face {
-  font-family: 'Ubuntu'; 
-  src: url('Ubuntu.ttf');
-}
-
-body {
-  font-family: 'Ubuntu', sans-serif;
-  font-size: 14px;
-  background-color: #444654;
-  color: #ffffff;
-  margin-left: 10px;
-}
-
 .song-icon {
   margin-right: 5px;
   margin-left: 23px;
   margin-bottom: -5px;
   width: 20px;
 }
-
 
 .time-icon {
   width: 25px;
@@ -77,7 +77,7 @@ body {
 }
 
 .songs-time {
-  margin-right: 5px;
+  margin-right: 0px;
   margin-left: 0px;
   margin-bottom: 0px;
 }
@@ -93,6 +93,13 @@ body {
   margin-left: 25px;
   margin-bottom: -5px;
   width: 15px;
+}
+
+.user-icon {
+  margin-right: 7px;
+  margin-left: 25px;
+  margin-bottom: -4px;
+  width: 17px;
 }
 
 a {
@@ -116,33 +123,45 @@ a:hover {
   width: 90%;
 }
 
-.tab {
-  margin-left: 5px;
-  margin-right: 5px;
-  width: 5000px;
+.wordcloud {
+  margin-left: 40px;
+  margin-right: 20px;
+  width: 90%;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  align-items: center;
 }
+
+.wordcloud-title {
+  text-align: center;
+  margin-top: 30px;
+  font-family: "Open Sans", verdana, arial, sans-serif;
+  font-size: 18px;
+}
+
 
 .tab-style-sp {
   background-image: url('/assets/sp.svg');
   background-repeat: no-repeat;
   background-position: center;
   background-size: 30px 30px;
-  margin: 0 auto; 
-  margin-right: 10px;
+  margin-right: 5px;
   border-radius: 10px;
   margin-bottom: 5px;
-  width: 100%;
 }
 
-.tab-style-yt {
-  background-image: url('/assets/yt.svg');
+.tab-style-xt {
+  background-image: url('/assets/x.png');
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 30px 30px;
-  margin: 0 auto;
-  margin-right: 10px;
+  background-size: 40px 30px;
+  margin-right: 5px;
   border-radius: 10px;
   margin-bottom: 5px;
+}
+
+.icon-container {
+  mix-blend-mode: multiply; /* Cambia el modo de mezcla según tu preferencia */
 }
 
 @media (max-width: 1080px) {

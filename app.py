@@ -6,10 +6,13 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 from dateutil.parser import parse 
 import numpy as np
-from dash.dependencies import Input, Output
+import pandas as pd
+from dash_holoniq_wordcloud import DashWordcloud
 
 # Obtener la ruta absoluta al directorio raíz del código
 base_dir = os.path.dirname(os.path.abspath(__file__))
+
+#####    Seccion Spotify    ####
 
 # Conectar a la base de datos en el directorio raíz
 db_path = os.path.join(base_dir, 'spotify_stats.db')
@@ -147,7 +150,7 @@ top_genres_chart = dcc.Graph(
                                             template='plotly_dark',
                                             margin=dict(t=70, b=30, l=20, r=20),
                                             autosize=True,
-                                            legend=dict(orientation="h", yanchor="auto", y=-0.7, xanchor="auto", x=0.35),
+                                            legend=dict(orientation="h", yanchor="auto", y=-0.6, xanchor="auto", x=0.35),
                                             )
                     },className='graph'
                 )
@@ -329,7 +332,7 @@ line = html.Div(
 )
 
 #Diseño de la sección Spotify
-spotify_tab_layout = html.Div(className='container',children=[
+spotify_tab_layout = html.Div(children=[
     html.Div(className='left-column',children=[
         html.H1('Estadísticas Spotify', style={'textAlign': 'center'}),
         html.H3(f'Artista más escuchado: {most_played_artist[0]}', className='margin-left'),
@@ -345,25 +348,229 @@ spotify_tab_layout = html.Div(className='container',children=[
         line,
         html.H3('Canciones favoritas recientes:', className='margin-left'),
         recent_favorite_songs_bullet,
-    ]
-        ),
+    ]),
     html.Div(className='right-column',children=[
             top_genres_chart,
             html.Abbr("🛈", title="La energía muestra la intensidad y actividad percibida en una canción. (Escala de 0 a 1)", className="Abbr_1"),
             bubbles_chart                
-            ]
-        ),
+    ]),
     html.Div(className='right-column',children=[
             html.Abbr("🛈", title="La valencia indica la positividad o negatividad emocional de una canción. (Escala de 0 a 1)", className="Abbr_2"),
             valence_chart,
             songs_chart
-            ]
-        ),
-    ]
+    ])
+])
+
+#cerrar conexion base de datos spotify
+conn.close()
+
+#####    Seccion X-Twitter    ####
+
+#Abrir Conexion a la base de datos
+db_path = os.path.join(base_dir, 'tweets.db')
+conn = sqlite3.connect(db_path)
+cursor = conn.cursor()
+
+#Extraer el total de tweets de X-Twitter
+cursor.execute('SELECT COUNT(*) FROM tweets')
+total_tweets = cursor.fetchone()[0]
+
+# Obtener los usuarios mencionados con más frecuencia (top 5)
+cursor.execute('''
+    SELECT mention, COUNT(mention) as mention_count
+    FROM tweets
+    WHERE mention IS NOT NULL
+    GROUP BY mention
+    ORDER BY mention_count DESC
+    LIMIT 5
+''')
+top_mentioned_users_list = cursor.fetchall()
+
+# Crear una lista de elementos HTML para mostrar los usuarios mencionados
+top_mentioned_users_bullet = html.P([
+    html.P([
+        html.Img(src="assets/user.svg", className="user-icon"),  # Asegúrate de ajustar la ruta de la imagen
+        html.A(f"@{user[0]} - {user[1]} Menciones", href=f"https://twitter.com/{user[0]}")  # Agrega el enlace a su perfil de X-Twitter
+    ])
+    for user in top_mentioned_users_list
+])
+
+#Gráfico cantidad de tweets por mes
+
+# Obtener las fechas de creación de los tweets
+cursor.execute('SELECT created_at FROM tweets')
+dates = cursor.fetchall()
+
+# Crear un DataFrame de Pandas a partir de los datos
+df = pd.DataFrame(dates, columns=['created_at'])
+
+# Convertir la columna 'created_at' a tipo datetime
+df['created_at'] = pd.to_datetime(df['created_at'], format='%b %d %H:%M:%S +0000 %Y')
+
+# Agregar una columna 'month_year' para el mes y año
+df['month_year'] = df['created_at'].dt.strftime('%Y-%m')
+
+# Contar la cantidad de tweets por mes
+tweets_by_month = df['month_year'].value_counts().sort_index()
+
+# Obtener los meses y la cantidad de tweets por mes
+months = tweets_by_month.index.tolist()
+tweets_count = tweets_by_month.tolist()
+
+# Crear la gráfica de cantidad de tweets por mes con área sombreada
+data_tweets = [
+    go.Scatter(
+        x=months,
+        y=tweets_count,
+        mode='lines',
+        name='Tweets por Mes',
+        fill='tozeroy',  # Rellenar área por debajo de la línea
+        marker=dict(color='blue'),
+        line=dict(color='#636efa', width=2)
+    )
+]
+
+layout_tweets = go.Layout(
+    title='Tweets por Mes',
+    title_x=0.5, title_font_size=18,
+    xaxis=dict(title='Mes'),
+    yaxis=dict(title='Cantidad de Tweets'),
+    margin=dict(t=100, b=30, l=20, r=20),
+    hovermode='closest',
+    paper_bgcolor='#191B28',
+    plot_bgcolor='#191B28',
+    font=dict(color='#ffffff'),
+    showlegend=False,  # No mostrar leyenda, ya que solo hay una serie de datos
+    autosize=True,
 )
 
-#Diseño de la sección Yputube
-youtube_tab_layout = html.H1('Estadísticas Youtube en Construcción', style={'textAlign': 'center'})
+fig_tweets = go.Figure(data=data_tweets, layout=layout_tweets)
+
+# Crear la gráfica de cantidad de tweets por mes usando dcc.Graph
+tweets_chart = dcc.Graph(
+    id='tweets-chart',
+    figure=go.Figure(data=data_tweets, layout=layout_tweets),
+    className='graph'
+)
+
+#Gráfico de tweets por día
+
+# Obtener los datos de create_day y contar la cantidad de tweets por día de la semana
+cursor.execute('SELECT create_day FROM tweets')
+days = cursor.fetchall()
+
+# Crear un DataFrame de Pandas a partir de los datos
+df = pd.DataFrame(days, columns=['create_day'])
+
+# Contar la cantidad de tweets por día de la semana
+tweets_by_day_of_week = df['create_day'].value_counts().sort_index()
+
+# Definir los nombres de los días de la semana
+day_names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+# Definir los colores personalizados
+custom_colors = ['#d193ff', '#9783ff', '#7d2799', '#3345b4', '#a836cc', '#636efa']
+
+# Crear un gráfico de torta
+fig = go.Figure(data=[go.Pie(
+    labels=day_names,
+    values=tweets_by_day_of_week,
+    marker=dict(colors=custom_colors),
+    textinfo='percent+label',
+    hole=0.3,
+)])
+
+# Personalizar el diseño del gráfico de torta
+fig.update_layout(
+    title='Tweets por Día de la Semana',
+    title_x=0.5, title_font_size=18,
+    margin=dict(t=100, b=30, l=20, r=20),
+    hovermode='closest',
+    paper_bgcolor='#191B28',
+    plot_bgcolor='#191B28',
+    font=dict(color='#ffffff'),
+    autosize=True,
+    #legend=dict(orientation='h', yanchor='bottom', y=-0.3, xanchor='center', x=0.5),
+)
+
+# Crear el gráfico de torta usando dcc.Graph
+days_chart = dcc.Graph(
+    id='pie-chart',
+    figure=fig,
+    className='graph'
+)
+
+#Nube de palabras en tweets:
+
+# Extraer los datos de texto de la columna 'text'
+cursor.execute('SELECT text FROM tweets')
+text_data = cursor.fetchall()
+
+# Procesa los datos para obtener una lista de palabras
+words = []
+for row in text_data:
+    text = row[0]
+    # Divide el texto en palabras y filtra las que tienen 4 letras o más
+    words.extend([word for word in text.split() if len(word) >= 5])
+
+# Crea una lista de palabras con su frecuencia
+wordcloud_data = [[word, words.count(word)] for word in set(words)]
+
+# Filtrar las palabras que aparecen 5 o más veces
+filtered_wordcloud_data = [
+    [word, count]
+    for word, count in wordcloud_data
+    if count >= 5 and '@' not in word and ':' not in word and '!' not in word and '&' not in word
+]
+
+word_cloud =DashWordcloud(
+            id='wordcloud',
+            list=filtered_wordcloud_data,
+            width=320,
+            height=370,
+            gridSize=16,
+            color='#ffffff',  # Cambia el color del texto de la nube de palabras
+            backgroundColor='#191B28',  # Cambia el color de fondo de la nube de palabras
+            shuffle=False,
+            rotateRatio=0.5,
+            shrinkToFit=False,
+            shape='circle',
+            hover=True
+        )
+
+wordcloud_chart = html.Div(className='wordcloud',children=[
+    html.H2('Palabras Frecuentes', className='wordcloud-title'),
+    word_cloud])
+               
+#Diseño de la sección X-Twitter
+xt_tab_layout = html.Div(children=[
+	html.Div(className='left-column',children=[
+        html.H1('Estadísticas X-Twitter', style={'textAlign': 'center'}),
+        html.H3(f'Total de Tweets: {total_tweets}', className='margin-left'),
+        line,
+        html.H3('Usuarios más mencionados:', className='margin-left'),
+        top_mentioned_users_bullet,
+        line,
+        html.H3(f'Usuarios con mas likes:', className='margin-left'),
+        #playtime,
+        #line,
+        #html.H3('Artistas más escuchados:', className='margin-left'),
+        #top_artists_bullet,
+        #line,
+        #html.H3('Canciones favoritas recientes:', className='margin-left'),
+        #recent_favorite_songs_bullet,
+    ]),
+	html.Div(className='right-column',children=[
+            days_chart,
+            tweets_chart                
+            ]
+        ),
+	html.Div(className='right-column',children=[
+            
+            wordcloud_chart,
+            tweets_chart
+        ])
+])
 
 # Crear una instancia de la aplicación Dash
 app = Dash(__name__)
@@ -372,10 +579,14 @@ app.title = 'Dash de Johan'
 # Definir el diseño de la aplicación
 app.layout = dcc.Tabs(id='vertical-tabs', value='tab-spotify', colors={'border': '#191B28', 'primary': '#191B28', 'background': '#191B28'}, children=[
                 dcc.Tab(label=' ',value='tab-spotify', className='tab-style-sp', children=[
-                    spotify_tab_layout
+                    html.Div(style={'width': '94vw', 'height': '100vh'}, children=[
+                        spotify_tab_layout
+                    ])
                 ]),
-                dcc.Tab(label=' ', value='tab-youtube', className='tab-style-yt', children=[
-                    youtube_tab_layout
+                dcc.Tab(label=' ', value='tab-xt', className='tab-style-xt', children=[
+                    html.Div(style={'width': '94vw', 'height': '100vh'}, children=[
+                        xt_tab_layout
+                    ])    
                 ])
             ], vertical=True)
 
