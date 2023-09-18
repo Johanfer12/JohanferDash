@@ -575,6 +575,7 @@ layout = go.Layout(
     title_x=0.5, title_font_size=18,
     xaxis=dict(title='Hora del Día'),
     yaxis=dict(title='Cantidad de Tweets'),
+    margin=dict(t=70, b=30, l=20, r=20),
     paper_bgcolor='#191B28',  
     plot_bgcolor='#191B28',  
     font=dict(color='#ffffff'),  
