@@ -502,7 +502,7 @@ days_chart = dcc.Graph(
 
 #Nube de palabras en tweets:
 
-# Extraer los datos de texto de la columna 'text'
+# Extraer los datos de texto de la columna 'text' en la DB
 cursor.execute('SELECT text FROM tweets')
 text_data = cursor.fetchall()
 
@@ -532,8 +532,8 @@ word_cloud =DashWordcloud(
             width=310,
             height=370,
             gridSize=16,
-            color='#ffffff',  # Cambia el color del texto de la nube de palabras
-            backgroundColor='#191B28',  # Cambia el color de fondo de la nube de palabras
+            color='#ffffff',  
+            backgroundColor='#191B28',  
             shuffle=False,
             rotateRatio=1,
             shrinkToFit=False,
@@ -544,6 +544,57 @@ word_cloud =DashWordcloud(
 wordcloud_chart = html.Div(className='wordcloud',children=[
     html.H2('Palabras Frecuentes', className='wordcloud-title'),
     word_cloud])
+
+#Gráfico de tweets por hora del día
+
+# Consulta SQL para contar la cantidad de tweets por hora, corrección de zona horaria -5 dado que originalmente es UTC
+cursor.execute('''
+    SELECT (CAST(SUBSTR(created_at, 8, 2) AS INTEGER) - 5 + 24) % 24 as hour, COUNT(*) as tweet_count
+    FROM tweets
+    WHERE created_at IS NOT NULL
+    GROUP BY hour
+    ORDER BY hour
+''')
+
+# Obtener los resultados de la consulta
+hourly_tweet_data = cursor.fetchall()
+
+# Crear un DataFrame de Pandas a partir de los datos
+df = pd.DataFrame(hourly_tweet_data, columns=['hour', 'tweet_count'])
+
+# Crear el gráfico de barras
+bar_chart = go.Bar(
+    x=df['hour'],
+    y=df['tweet_count'],
+    marker=dict(color='#636efa'),  # Color de las barras
+)
+
+# Diseñar el diseño del gráfico
+layout = go.Layout(
+    title='Distribución de Tweets por Hora del Día',
+    title_x=0.5, title_font_size=18,
+    xaxis=dict(title='Hora del Día'),
+    yaxis=dict(title='Cantidad de Tweets'),
+    paper_bgcolor='#191B28',  
+    plot_bgcolor='#191B28',  
+    font=dict(color='#ffffff'),  
+)
+
+# Crear la figura que incluye el gráfico y el diseño
+fig = go.Figure(data=[bar_chart], layout=layout)
+
+# Personalizar las etiquetas en el eje x dado que se ajustó a la zona horaria -5
+fig.update_xaxes(tickvals=list(range(24)), ticktext=[str(i) for i in range(24)])
+
+# Cerrar la conexión a la base de datos de tweets
+conn.close()
+
+# Crear el gráfico de barras
+hourly_tweets_chart = dcc.Graph(
+    id='hourly-tweets-chart',
+    figure=fig,
+    className='graph'
+)
                
 #Diseño de la sección X-Twitter
 xt_tab_layout = html.Div(children=[
@@ -554,18 +605,10 @@ xt_tab_layout = html.Div(children=[
         html.H3('Usuarios más mencionados:', className='margin-left'),
         top_mentioned_users_bullet,
         line,
-        html.H3(f'Usuarios con mas likes:', className='margin-left'),
-        #playtime,
-        #line,
-        #html.H3('Artistas más escuchados:', className='margin-left'),
-        #top_artists_bullet,
-        #line,
-        #html.H3('Canciones favoritas recientes:', className='margin-left'),
-        #recent_favorite_songs_bullet,
     ]),
 	html.Div(className='right-column',children=[
             days_chart,
-            #tweets_chart                
+            hourly_tweets_chart,               
             ]
         ),
 	html.Div(className='right-column',children=[
@@ -575,7 +618,7 @@ xt_tab_layout = html.Div(children=[
         ])
 ])
 
-# Crear una instancia de la aplicación Dash
+# Crear instancia de la aplicación Dash
 app = Dash(__name__)
 app.title = 'Dash de Johan'
 
@@ -595,4 +638,4 @@ app.layout = dcc.Tabs(id='vertical-tabs', value='tab-spotify', colors={'border':
 
 # Iniciar el servidor Dash
 if __name__ == '__main__':
-    app.run_server(host='0.0.0.0', port=8050, debug=True)
+    app.run_server(host='0.0.0.0', port=8050, debug=False)
