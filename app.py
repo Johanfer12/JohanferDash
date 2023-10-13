@@ -619,6 +619,49 @@ xt_tab_layout = html.Div(children=[
         ])
 ])
 
+#Diseño de la sección Información
+nfo_tab_layout = html.Div(className='info-tab', children=[    
+
+    html.H1('Dash de Johan', style={'textAlign': 'center'}),
+    html.P(
+        "Herramienta para explorar y visualizar datos de mi música y tweets favoritos."
+    ),
+    html.P(
+        "Se hace uso de Dash, Plotly, SQL y Pandas; Adicionalmente se extrae información de las bases de datos de twitter y spotify, generadas desde un archivo csv de datos de Twitter y la API de Spotify."
+    ),
+    html.P(
+        "Descubre cuáles son mis artistas, géneros y canciones más escuchados en Spotify, el tiempo total que he dedicado a la música, y las emociones detrás de mis canciones favoritas."
+    ),
+    html.P(
+        "En la sección de X-Twitter, se obtiene información sobre mis tweets, usuarios más mencionados, patrones de publicación y las palabras más frecuentes en mis tweets en una nube."
+    ),
+    html.P(
+        "Explora las diversas gráficas e información proporcionadas y disfruta de un análisis personalizado de mi actividad en Spotify y X-Twitter."
+    ),
+    html.H3('Gráficas de Energía y Valencia'),
+    html.P(
+        "Las gráficas de Energía y Valencia proporcionan información sobre las características emocionales y musicales de mis canciones favoritas en Spotify:"
+    ),
+    html.Ul([
+        html.Li(
+            "La gráfica de Energía muestra la intensidad y actividad percibida en una canción, en una escala de 0 a 1. "
+            "Una mayor energía indica una canción más enérgica y activa."
+        ),
+        html.Br(),
+        html.Li(
+            "La gráfica de Valencia indica la positividad o negatividad emocional de una canción, en una escala de 0 a 1. "
+            "Una valencia alta sugiere una canción con una atmósfera más positiva, mientras que una valencia baja indica una atmósfera más negativa."
+        ),
+    ]),
+    html.P(
+        "Estas gráficas permiten explorar las emociones y la energía presentes en mis canciones favoritas, lo que puede ayudar a entender mis preferencias musicales y estado de ánimo musical."
+    ),
+    html.P([
+    "Si deseas ver el código fuente de esta aplicación, puedes encontrarlo en mi ",
+    html.A("GitHub", href="https://github.com/Johanfer12", target="_blank", className="github-link")
+    ])
+])
+
 # Crear instancia de la aplicación Dash
 app = Dash(__name__)
 app.title = 'Dash de Johan'
@@ -634,9 +677,14 @@ app.layout = dcc.Tabs(id='vertical-tabs', value='tab-spotify', colors={'border':
                     html.Div(style={'width': '95vw', 'height': '100vh'}, children=[
                         xt_tab_layout
                     ])    
+                ]),
+                dcc.Tab(label=' ', value='tab-nfo', className='tab-style-nfo', children=[
+                    html.Div(style={'width': '95vw', 'height': '100vh'}, children=[
+                        nfo_tab_layout
+                    ])    
                 ])
             ], vertical=True)
 
 # Iniciar el servidor Dash
 if __name__ == '__main__':
-    app.run_server(host='0.0.0.0', port=8050, debug=False)
+    app.run_server(host='0.0.0.0', port=8050, debug=True)

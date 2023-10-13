@@ -147,8 +147,18 @@ a:hover {
   margin-bottom: 5px;
 }
 
+.tab-style-nfo {
+  background-image: url('/assets/info.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 40px 30px;
+  margin-right: 3px;
+  border-radius: 10px;
+  margin-bottom: 5px;
+}
+
 .icon-container {
-  mix-blend-mode: multiply; /* Cambia el modo de mezcla según tu preferencia */
+  mix-blend-mode: multiply; 
 }
 
 ::-webkit-scrollbar{
@@ -156,6 +166,15 @@ a:hover {
   background: transparent;
 }
 
+.info-tab {
+  display: flex;
+  flex-direction: column;
+  text-align: justify;
+  justify-content: right;
+  font-size: medium;
+  margin-left: 60px;
+  margin-right: 80px;
+}
 
 @media (max-width: 1080px) {
   /* Estilos para pantallas pequeñas */
@@ -213,6 +232,10 @@ a:hover {
   Ul {
     margin-left: -8px; /* Ajusta el margen izquierdo de la lista */
 
+  }
+  .info-tab {
+    margin-left: 10px;
+    margin-right: 10px;
   }
   
 }
