@@ -7,6 +7,7 @@ from collections import defaultdict
 from dateutil.parser import parse 
 import numpy as np
 import pandas as pd
+import json
 from dash_holoniq_wordcloud import DashWordcloud
 
 # Obtener la ruta absoluta al directorio raíz del código
@@ -502,33 +503,48 @@ days_chart = dcc.Graph(
 
 #Nube de palabras en tweets:
 
-# Extraer los datos de texto de la columna 'text' en la DB
-cursor.execute('SELECT text FROM tweets')
-text_data = cursor.fetchall()
+# Ruta al archivo donde se guardará la nube de palabras
+wordcloud_file = 'wordcloud.json'
 
-# Procesa los datos para obtener una lista de palabras
-words = []
-for row in text_data:
-    text = row[0]
-    # Divide el texto en palabras y filtra las que tienen 4 letras o más
-    words.extend([word for word in text.split() if len(word) >= 5])
+# Verificar si el archivo de la nube de palabras ya existe, para no recalcular toda la nube
+if os.path.exists(wordcloud_file):
+    # Cargar la nube de palabras desde el archivo
+    with open(wordcloud_file, 'r') as f:
+        wordcloud_data = json.load(f)
+else:
+    # Extraer los datos de texto de la columna 'text' en la DB
+    cursor.execute('SELECT text FROM tweets')
+    text_data = cursor.fetchall()
 
-# Crea una lista de palabras con su frecuencia
-wordcloud_data = [[word, words.count(word)] for word in set(words)]
+    # Procesa los datos para obtener una lista de palabras
+    words = []
+    for row in text_data:
+        text = row[0]
+        # Divide el texto en palabras y filtra las que tienen 4 letras o más
+        words.extend([word for word in text.split() if len(word) >= 5])
 
-# Filtrar las palabras que aparecen 5 o más veces
-filtered_wordcloud_data = [
-    [word, count]
-    for word, count in wordcloud_data
-    if count >= 5 and '@' not in word and '#' not in word and ':' not in word and '!' not in word and '&' not in word and '¡' not in word
-]
+    # Crea una lista de palabras con su frecuencia
+    wordcloud_data = [[word, words.count(word)] for word in set(words)]
 
-# Ordenar la lista de palabras por frecuencia de mayor a menor
-filtered_wordcloud_data = sorted(filtered_wordcloud_data, key=lambda x: x[1], reverse=True)
+    # Filtrar las palabras que aparecen 5 o más veces
+    wordcloud_data = [
+        [word, count]
+        for word, count in wordcloud_data
+        if count >= 5 and '@' not in word and '#' not in word and ':' not in word and '!' not in word and '&' not in word and '¡' not in word
+    ]
+
+    # Ordenar la lista de palabras por frecuencia de mayor a menor
+    wordcloud_data = sorted(wordcloud_data, key=lambda x: x[1], reverse=True)
+
+    # Guardar la nube de palabras en un archivo
+    with open(wordcloud_file, 'w') as f:
+        json.dump(wordcloud_data, f)
+
+# Ahora tienes la nube de palabras en la variable `wordcloud_data` o cargada desde el archivo si ya existía
 
 word_cloud =DashWordcloud(
             id='wordcloud',
-            list=filtered_wordcloud_data,
+            list=wordcloud_data,
             width=310,
             height=370,
             gridSize=16,
