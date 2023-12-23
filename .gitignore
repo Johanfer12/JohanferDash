@@ -1,6 +1,7 @@
 config.py
 *.json
 *.js
+.cache-johanfer12
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
