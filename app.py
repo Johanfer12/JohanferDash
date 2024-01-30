@@ -332,6 +332,17 @@ line = html.Div(
     ]
 )
 
+# Extraer fecha de adición de la última canción de la base de datos:
+cursor.execute('''SELECT added_at FROM spotify_favorites ORDER BY added_at DESC LIMIT 1''')
+last_updated_tuple = cursor.fetchone()
+
+if last_updated_tuple:
+    last_updated = last_updated_tuple[0]
+    last_updated = datetime.strptime(last_updated, '%Y-%m-%dT%H:%M:%SZ').strftime('%d de %B de %Y')
+else:
+    print("No se encontraron registros de nuevas canciones en la base de datos.")
+
+
 #Diseño de la sección Spotify
 spotify_tab_layout = html.Div(children=[
     html.Div(className='left-column',children=[
@@ -349,6 +360,10 @@ spotify_tab_layout = html.Div(children=[
         line,
         html.H3('Canciones favoritas recientes:', className='margin-left'),
         recent_favorite_songs_bullet,
+        line,
+        html.Br(),        
+        html.H4(f'Última actualización: {last_updated}', className='margin-left'), 
+        html.Br(),
     ]),
     html.Div(className='right-column',children=[
             top_genres_chart,
@@ -361,6 +376,7 @@ spotify_tab_layout = html.Div(children=[
             songs_chart
     ])
 ])
+
 
 #cerrar conexion base de datos spotify
 conn.close()
