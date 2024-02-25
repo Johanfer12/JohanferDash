@@ -102,10 +102,10 @@ a:hover {
   color: #00b7ff; /* Cambia el color de los hipervínculos cuando se les pasa el mouse a verde (#00ff00) */
 }
 
-.margin-left {
+.content-left {
   margin-top: 13px;
-  margin-left: 15px;
-  margin-bottom: 15px;
+  margin-left: 16px;
+  margin-bottom: 16px;
 }
 
 .graph {
@@ -216,7 +216,7 @@ a:hover {
     margin-left: 5px;
   }
 
-  .margin-left {
+  .content-left {
     margin-top: 10px;
     margin-left: 15px;
     margin-bottom: 1px;
