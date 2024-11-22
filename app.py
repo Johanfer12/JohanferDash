@@ -151,9 +151,12 @@ top_genres_chart = dcc.Graph(
                                             template='plotly_dark',
                                             margin=dict(t=70, b=30, l=20, r=20),
                                             autosize=True,
+                                            dragmode=False,
                                             legend=dict(orientation="h", yanchor="auto", y=-0.6, xanchor="auto", x=0.35),
                                             )
-                    },className='graph'
+                    },
+                    config={'displayModeBar': False},
+                    className='graph'
                 )
 
 #Gráfica de barras valencia en el tiempo
@@ -198,9 +201,12 @@ valence_chart = dcc.Graph(
                                 plot_bgcolor='rgba(2, 0, 0, 0)',
                                 margin=dict(t=70, b=30, l=45, r=20),
                                 autosize=True,
+                                dragmode=False,
                                 legend=dict(orientation="h", yanchor="auto", y=-0.7, xanchor="auto", x=0.35)
                                 )
-                            },className='graph'
+                            },
+                            config={'displayModeBar': False},
+                            className='graph'
                          )
 
 #Gráfica de burbujas de energía y valencia por cada género y su tamaño relativo
@@ -246,6 +252,7 @@ layout = go.Layout(
     plot_bgcolor='rgba(2, 0, 0, 0)',
     font=dict(color='#ffffff'),
     showlegend=False,
+    dragmode=False,
     autosize=True
 )
 
@@ -256,6 +263,7 @@ fig = go.Figure(data=[trace], layout=layout)
 bubbles_chart = dcc.Graph(
     id='bubbles-chart',
     figure=fig,
+    config={'displayModeBar': False},
     className='graph'
 )
 
@@ -314,6 +322,7 @@ layout_songs = go.Layout(
     font=dict(color='#ffffff'),
     showlegend=True,
     autosize=True,
+    dragmode=False,
     legend=dict(orientation='h', yanchor='bottom', y=1, xanchor='right', x=1)
 )
 
@@ -323,6 +332,7 @@ fig_songs = go.Figure(data=data_songs, layout=layout_songs)
 songs_chart = dcc.Graph(
     id='songs-chart',
     figure=fig_songs,
+    config={'displayModeBar': False},
     className='graph'
 )
 
@@ -458,6 +468,7 @@ layout_tweets = go.Layout(
     paper_bgcolor='rgba(2, 0, 0, 0)',
     plot_bgcolor='rgba(2, 0, 0, 0)',
     font=dict(color='#ffffff'),
+    dragmode=False,
     showlegend=False,  # No mostrar leyenda, ya que solo hay una serie de datos
     autosize=True,
 )
@@ -468,6 +479,7 @@ fig_tweets = go.Figure(data=data_tweets, layout=layout_tweets)
 tweets_chart = dcc.Graph(
     id='tweets-chart',
     figure=go.Figure(data=data_tweets, layout=layout_tweets),
+    config={'displayModeBar': False},
     className='graph'
 )
 
@@ -515,6 +527,7 @@ fig.update_layout(
 days_chart = dcc.Graph(
     id='pie-chart',
     figure=fig,
+    config={'displayModeBar': False},
     className='graph'
 )
 
@@ -612,6 +625,7 @@ layout = go.Layout(
     paper_bgcolor='rgba(2, 0, 0, 0)',  
     plot_bgcolor='rgba(2, 0, 0, 0)',  
     font=dict(color='#ffffff'),  
+    dragmode=False,
 )
 
 # Crear la figura que incluye el gráfico y el diseño
@@ -627,6 +641,7 @@ conn.close()
 hourly_tweets_chart = dcc.Graph(
     id='hourly-tweets-chart',
     figure=fig,
+    config={'displayModeBar': False},
     className='graph'
 )
                

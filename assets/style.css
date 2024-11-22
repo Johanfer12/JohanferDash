@@ -245,4 +245,40 @@ a:hover {
     margin-right: 10px;
   }
   
+  /* Estilos para los botones de navegación */
+  .tab-style-sp, .tab-style-xt, .tab-style-nfo {
+    display: inline-block;
+    width: 35px !important;
+    height: 35px !important;
+    margin: 3px !important;
+    padding: 0 !important;
+    background-size: 20px 20px;
+    background-color: #cf1e1e;  /* Color de fondo más claro para los botones no seleccionados */
+    border-radius: 8px;
+  }
+
+  /* Estilo para el botón seleccionado */
+  .Mui-selected {
+    background-color: #ffffff !important;
+  }
+
+  /* Contenedor de pestañas */
+  #vertical-tabs {
+    position: fixed;
+    top: 15vh;
+    right: 10px;
+    transform: none;
+    z-index: 1000;
+    background: rgba(65, 69, 95, 0.568);
+    border-radius: 12px;
+    padding: 8px;
+    width: auto !important;
+  }
+
+  /* Ocultar el texto de las pestañas */
+  .tab-style-sp > div, 
+  .tab-style-xt > div, 
+  .tab-style-nfo > div {
+    display: none;
+  }
 }
