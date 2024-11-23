@@ -11,6 +11,8 @@ body {
   background-image: url('bg.webp');
   background-repeat: repeat;
   background-size: auto;
+  margin: 0;
+  overflow-x: hidden;
 }
 
 .left-column {
@@ -19,7 +21,8 @@ body {
   background-color: rgba(2, 0, 0, 0.603); 
   color: #FFFFFF; 
   border-radius: 10px;  
-
+  margin-bottom: 20px;
+  margin-top: 15px;
 }
 
 .right-column {
@@ -28,6 +31,8 @@ body {
   background-color: rgba(2, 0, 0, 0.603); 
   border-radius: 10px;
   margin-left: 10px;
+  margin-bottom: 20px;
+  margin-top: 15px;
 }
 
 .Abbr_1 {
@@ -115,12 +120,14 @@ a:hover {
   margin-left: 20px;
   margin-right: 20px;
   width: 90%;
+  height: auto;
 }
 
 .wordcloud {
-  margin: 25px auto 10px; /* Margen superior e inferior de 25px, centrado horizontalmente */
+  margin: 25px auto 10px;
   width: 90%;
-  text-align: center; /* Centrar verticalmente el contenido */
+  text-align: center;
+  height: auto;
 }
 
 .wordcloud-title {
@@ -176,11 +183,18 @@ a:hover {
   text-align: justify;
   justify-content: right;
   font-size: medium;
-  margin-left: 60px;
-  margin-right: 80px;
+  margin: 20px 80px;
   border-radius: 15px;
   padding: 20px;
-  margin-top: 20px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#vertical-tabs {
+  margin-top: 15px;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 @media (max-width: 1080px) {
@@ -265,8 +279,9 @@ a:hover {
   /* Contenedor de pestañas */
   #vertical-tabs {
     position: fixed;
-    top: 15vh;
-    right: 10px;
+    top: 12vh;
+    right: 8px;
+    margin-right: 1px;
     transform: none;
     z-index: 1000;
     background: rgba(65, 69, 95, 0.568);
